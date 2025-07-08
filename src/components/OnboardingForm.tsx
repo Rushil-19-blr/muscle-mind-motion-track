@@ -372,13 +372,35 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   </SelectContent>
                 </Select>
               </div>
-import { UserData } from '@/pages/Index';
             </div>
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Previous
-          </Button>
-          
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="space-y-8 max-w-2xl mx-auto">
+      <Progress value={progress} className="w-full" />
+      
+      <Card className="p-6">
+        {renderStep()}
+      </Card>
+      
+      <div className="flex justify-between">
+        <Button
+          variant="outline"
+          onClick={prevStep}
+          disabled={currentStep === 1}
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Previous
+        </Button>
+        
+        <Button onClick={nextStep}>
+          {currentStep === totalSteps ? 'Complete' : 'Next'}
+          {currentStep !== totalSteps && <ChevronRight className="w-4 h-4 ml-2" />}
+        </Button>
+      </div>
     </div>
   );
 };
