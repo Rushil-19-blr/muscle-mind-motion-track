@@ -372,58 +372,13 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   </SelectContent>
                 </Select>
               </div>
+import { UserData } from '@/pages/Index';
             </div>
-          </div>
-        );
-        
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4 flex items-center justify-center">
-      <Card className="w-full max-w-4xl p-8 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-muted-foreground">
-              Step {currentStep} of {totalSteps}
-            </span>
-            <span className="text-sm font-medium text-muted-foreground">
-              {Math.round(progress)}% Complete
-            </span>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
-
-        {/* Step Content */}
-        <div className="mb-8">
-          {renderStep()}
-        </div>
-
-        {/* Navigation */}
-        <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={prevStep}
-            disabled={currentStep === 1}
-            className="flex items-center gap-2"
           >
             <ChevronLeft className="w-4 h-4" />
             Previous
           </Button>
           
-          <Button
-            variant={currentStep === totalSteps ? "accent" : "default"}
-            onClick={nextStep}
-            className="flex items-center gap-2"
-          >
-            {currentStep === totalSteps ? "Complete Setup" : "Next"}
-            {currentStep !== totalSteps && <ChevronRight className="w-4 h-4" />}
-          </Button>
-        </div>
-      </Card>
     </div>
   );
 };
