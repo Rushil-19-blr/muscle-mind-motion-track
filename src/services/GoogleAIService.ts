@@ -55,7 +55,7 @@ export interface UserData {
 }
 
 export class GoogleAIService {
-  private model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+  private model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   async generateWorkoutPlan(userData: UserData): Promise<WorkoutPlan> {
     const prompt = `
