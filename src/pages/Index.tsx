@@ -10,7 +10,7 @@ import heroImage from '@/assets/hero-fitness.jpg';
 
 type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval';
 
-interface UserData {
+export interface UserData {
   name: string;
   age: string;
   height: string;

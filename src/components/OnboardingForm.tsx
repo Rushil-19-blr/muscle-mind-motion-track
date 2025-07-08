@@ -8,42 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Target, Dumbbell, User, Utensils } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface UserData {
-  // Basic Info
-  name: string;
-  age: string;
-  height: string;
-  weight: string;
-  gender: string;
-  
-  // Body Composition
-  bodyFat: string;
-  muscleMass: string;
-  
-  // Eating Habits
-  dietStyle: string;
-  dailyMeals: string;
-  dailyCalories: string;
-  proteinIntake: string;
-  
-  // Current Program
-  currentProgram: string;
-  
-  // Strength Benchmarks
-  benchPress: string;
-  squat: string;
-  deadlift: string;
-  overheadPress: string;
-  pullUps: string;
-  rows: string;
-  
-  // Goals
-  primaryGoal: string;
-  secondaryGoal: string;
-  weeklyAvailability: string;
-  preferredDays: string[];
-}
+import { UserData } from '@/pages/Index';
 
 interface OnboardingFormProps {
   onComplete: (userData: UserData) => void;
@@ -459,16 +424,6 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
           </Button>
         </div>
       </Card>
-      
-      {pendingPlan && (
-        <ScheduleApproval
-          workoutPlan={pendingPlan}
-          onApprove={handlePlanApproval}
-          onModify={handlePlanModification}
-          isOpen={showApprovalDialog}
-          onClose={() => setShowApprovalDialog(false)}
-        />
-      )}
     </div>
   );
 };
