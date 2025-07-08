@@ -379,28 +379,46 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <Progress value={progress} className="mb-8" />
-      
-      <Card className="p-6">
-        {renderStep()}
-        
-        <div className="flex justify-between mt-8">
-          <Button
-            variant="outline"
-            onClick={prevStep}
-            disabled={currentStep === 1}
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Previous
-          </Button>
-          
-          <Button onClick={nextStep}>
-            {currentStep === totalSteps ? 'Complete' : 'Next'}
-            {currentStep !== totalSteps && <ChevronRight className="w-4 h-4 ml-2" />}
-          </Button>
+    <div className="space-y-8">
+      {/* Progress Bar */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium text-muted-foreground">
+            Step {currentStep} of {totalSteps}
+          </span>
+          <span className="text-sm font-medium text-muted-foreground">
+            {Math.round(progress)}% Complete
+          </span>
         </div>
-      </Card>
+        <Progress value={progress} className="h-2" />
+      </div>
+
+      {/* Step Content */}
+      <div className="mb-8">
+        {renderStep()}
+      </div>
+
+      {/* Navigation */}
+      <div className="flex justify-between">
+        <Button
+          variant="outline"
+          onClick={prevStep}
+          disabled={currentStep === 1}
+          className="flex items-center gap-2"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Previous
+        </Button>
+        
+        <Button
+          variant={currentStep === totalSteps ? "accent" : "default"}
+          onClick={nextStep}
+          className="flex items-center gap-2"
+        >
+          {currentStep === totalSteps ? "Generate My Plan" : "Next"}
+          {currentStep !== totalSteps && <ChevronRight className="w-4 h-4" />}
+        </Button>
+      </div>
     </div>
   );
 };

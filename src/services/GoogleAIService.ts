@@ -59,7 +59,7 @@ export class GoogleAIService {
 
   async generateWorkoutPlan(userData: UserData): Promise<WorkoutPlan> {
     const prompt = `
-      Create a detailed workout plan for a user with the following profile:
+      You are a professional fitness trainer and exercise physiologist. Create a detailed, personalized workout plan for a user with the following profile. The plan should be scientifically sound, progressive, and tailored to their specific goals and current fitness level.
       
       Personal Info:
       - Name: ${userData.name}
@@ -90,33 +90,36 @@ export class GoogleAIService {
       - Daily Calories: ${userData.dailyCalories}
       - Protein Intake: ${userData.proteinIntake}g
       
-      Please create a comprehensive workout plan with specific exercises, sets, reps, and weights. 
-      Format the response as a JSON object with the following structure:
+      Current Program: ${userData.currentProgram}
+      
+      IMPORTANT: You must respond with ONLY a valid JSON object, no additional text or formatting. The JSON should follow this exact structure:
+      
       {
-        "id": "unique-id",
-        "name": "Plan Name",
-        "duration": "4-6 weeks",
+        "name": "Descriptive Plan Name",
+        "duration": "4-6 weeks", 
         "days": [
           {
             "day": "Monday",
-            "name": "Upper Body Power",
+            "name": "Workout Name",
             "exercises": [
               {
-                "name": "Bench Press",
+                "name": "Exercise Name",
                 "sets": 4,
                 "reps": "6-8",
-                "weight": "80% of max",
+                "weight": "suggested weight or bodyweight",
                 "restTime": "2-3 minutes",
-                "notes": "Focus on form",
-                "muscleGroups": ["chest", "triceps", "shoulders"]
+                "notes": "Form cues and tips",
+                "muscleGroups": ["primary", "secondary"]
               }
             ],
-            "duration": 60
+            "duration": 45
           }
         ],
-        "goals": ["strength", "muscle"],
-        "notes": "Progressive overload every week"
+        "goals": ["primary goal", "secondary goal"],
+        "notes": "Important program notes and progression guidelines"
       }
+      
+      Create a plan with ${userData.weeklyAvailability} training days per week. Focus on ${userData.primaryGoal} as the primary goal. Include compound movements, proper progression, and consider their current strength levels. Make the plan challenging but achievable.
     `;
 
     try {
@@ -124,10 +127,25 @@ export class GoogleAIService {
       const response = await result.response;
       const text = response.text();
       
-      // Extract JSON from response
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      console.log('AI Response:', text);
+      
+      // Clean the response and extract JSON
+      let cleanedText = text.trim();
+      
+      // Remove any markdown formatting
+      cleanedText = cleanedText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      
+      // Find the JSON object
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        const planData = JSON.parse(jsonMatch[0]);
+        const jsonString = jsonMatch[0];
+        const planData = JSON.parse(jsonString);
+        
+        // Validate the structure
+        if (!planData.name || !planData.days || !Array.isArray(planData.days)) {
+          throw new Error('Invalid plan structure');
+        }
+        
         return {
           id: `plan-${Date.now()}`,
           ...planData
@@ -143,13 +161,13 @@ export class GoogleAIService {
 
   async adaptWorkoutPlan(currentPlan: WorkoutPlan, modifications: string): Promise<WorkoutPlan> {
     const prompt = `
-      Modify the following workout plan based on user feedback:
+      You are a professional fitness trainer. Modify the following workout plan based on the user's feedback. Respond with ONLY a valid JSON object in the same format as the original plan.
       
       Current Plan: ${JSON.stringify(currentPlan)}
       
       User Modifications: ${modifications}
       
-      Please adapt the plan accordingly and return the modified plan in the same JSON format.
+      Make the requested changes while maintaining the scientific integrity of the program. Ensure proper exercise selection, volume, and progression.
     `;
 
     try {
@@ -157,9 +175,16 @@ export class GoogleAIService {
       const response = await result.response;
       const text = response.text();
       
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      console.log('AI Modification Response:', text);
+      
+      // Clean the response
+      let cleanedText = text.trim();
+      cleanedText = cleanedText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        const planData = JSON.parse(jsonMatch[0]);
+        const jsonString = jsonMatch[0];
+        const planData = JSON.parse(jsonString);
         return {
           ...currentPlan,
           ...planData,
@@ -177,62 +202,114 @@ export class GoogleAIService {
   private getFallbackPlan(userData: UserData): WorkoutPlan {
     return {
       id: `fallback-${Date.now()}`,
-      name: "Beginner Strength Program",
+      name: `${userData.primaryGoal} Program for ${userData.name}`,
       duration: "4-6 weeks",
       days: [
         {
           day: "Monday",
-          name: "Upper Body",
+          name: "Upper Body Strength",
           exercises: [
             {
               name: "Bench Press",
-              sets: 3,
+              sets: 4,
               reps: "8-10",
-              weight: "Start with 60% of max",
-              restTime: "2 minutes",
-              notes: "Focus on form",
+              weight: userData.benchPress ? `${Math.round(parseFloat(userData.benchPress) * 0.7)}kg` : "Start light",
+              restTime: "2-3 minutes",
+              notes: "Focus on controlled movement and full range of motion",
               muscleGroups: ["chest", "triceps", "shoulders"]
             },
             {
-              name: "Rows",
+              name: "Barbell Rows",
               sets: 3,
               reps: "8-10",
-              weight: "Moderate",
+              weight: userData.rows ? `${Math.round(parseFloat(userData.rows) * 0.8)}kg` : "Moderate weight",
               restTime: "2 minutes",
-              notes: "Squeeze shoulder blades",
+              notes: "Pull to lower chest, squeeze shoulder blades together",
               muscleGroups: ["back", "biceps"]
+            },
+            {
+              name: "Overhead Press",
+              sets: 3,
+              reps: "6-8",
+              weight: userData.overheadPress ? `${Math.round(parseFloat(userData.overheadPress) * 0.8)}kg` : "Start light",
+              restTime: "2-3 minutes",
+              notes: "Keep core tight, press straight up",
+              muscleGroups: ["shoulders", "triceps", "core"]
             }
           ],
-          duration: 45
+          duration: 60
         },
         {
           day: "Wednesday",
-          name: "Lower Body",
+          name: "Lower Body Power",
           exercises: [
             {
               name: "Squats",
-              sets: 3,
+              sets: 4,
               reps: "8-10",
-              weight: "Start with 60% of max",
+              weight: userData.squat ? `${Math.round(parseFloat(userData.squat) * 0.7)}kg` : "Start with bodyweight",
               restTime: "2-3 minutes",
-              notes: "Full depth",
+              notes: "Descend until thighs are parallel to floor",
               muscleGroups: ["quads", "glutes", "hamstrings"]
             },
             {
               name: "Deadlifts",
               sets: 3,
               reps: "5-8",
-              weight: "Start with 60% of max",
+              weight: userData.deadlift ? `${Math.round(parseFloat(userData.deadlift) * 0.7)}kg` : "Start moderate",
               restTime: "3 minutes",
-              notes: "Keep back straight",
+              notes: "Keep back neutral, drive through heels",
               muscleGroups: ["hamstrings", "glutes", "back"]
+            },
+            {
+              name: "Walking Lunges",
+              sets: 3,
+              reps: "12 each leg",
+              weight: "Bodyweight or light dumbbells",
+              restTime: "90 seconds",
+              notes: "Step forward into lunge, alternate legs",
+              muscleGroups: ["quads", "glutes", "calves"]
             }
           ],
-          duration: 45
+          duration: 55
+        },
+        {
+          day: "Friday",
+          name: "Full Body Circuit",
+          exercises: [
+            {
+              name: "Pull-ups",
+              sets: 3,
+              reps: userData.pullUps ? userData.pullUps : "5-8",
+              weight: "Bodyweight",
+              restTime: "2 minutes",
+              notes: "Use assistance if needed, focus on full range",
+              muscleGroups: ["lats", "rhomboids", "biceps"]
+            },
+            {
+              name: "Push-ups",
+              sets: 3,
+              reps: "10-15",
+              weight: "Bodyweight",
+              restTime: "90 seconds",
+              notes: "Maintain straight body line",
+              muscleGroups: ["chest", "triceps", "shoulders"]
+            },
+            {
+              name: "Plank",
+              sets: 3,
+              reps: "30-60 seconds",
+              weight: "Bodyweight",
+              restTime: "60 seconds",
+              notes: "Keep body straight, engage core",
+              muscleGroups: ["core", "shoulders"]
+            }
+          ],
+          duration: 40
         }
       ],
-      goals: [userData.primaryGoal, userData.secondaryGoal],
-      notes: "Progressive overload weekly. Increase weight by 2.5-5% when you can complete all reps."
+      goals: [userData.primaryGoal, userData.secondaryGoal].filter(Boolean),
+      notes: `Progressive overload program designed for ${userData.primaryGoal}. Increase weight by 2.5-5kg when you can complete all sets and reps with good form. Rest 48-72 hours between sessions. Focus on proper form over heavy weight.`
     };
   }
 }

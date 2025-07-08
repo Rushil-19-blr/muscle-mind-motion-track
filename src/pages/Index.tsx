@@ -5,8 +5,12 @@ import OnboardingForm from '@/components/OnboardingForm';
 import Dashboard from '@/components/Dashboard';
 import WorkoutSession from '@/components/WorkoutSession';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
+import { ScheduleApproval } from '@/components/ScheduleApproval';
+import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
+import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
+import { useToast } from '@/hooks/use-toast';
 
 type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval';
 
@@ -38,14 +42,47 @@ export interface UserData {
 const Index = () => {
   const [appState, setAppState] = useState<AppState>('landing');
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [pendingPlan, setPendingPlan] = useState<WorkoutPlan | null>(null);
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const { setWorkoutPlan } = useWorkoutPlan();
+  const { toast } = useToast();
 
-  const handleOnboardingComplete = (data: UserData) => {
+  const handleOnboardingComplete = async (data: UserData) => {
     setUserData(data);
-    setAppState('schedule-approval');
+    setIsGeneratingPlan(true);
+    
+    try {
+      toast({
+        title: "Generating Your Plan",
+        description: "Our AI is creating a personalized workout plan for you...",
+      });
+      
+      const workoutPlan = await googleAIService.generateWorkoutPlan(data);
+      setPendingPlan(workoutPlan);
+      setAppState('schedule-approval');
+    } catch (error) {
+      console.error('Error generating workout plan:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate workout plan. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPlan(false);
+    }
   };
 
-  const handleScheduleApproved = () => {
+  const handleScheduleApproved = (plan: WorkoutPlan) => {
+    setWorkoutPlan(plan);
     setAppState('dashboard');
+    toast({
+      title: "Plan Activated!",
+      description: "Your personalized workout plan is now ready to use.",
+    });
+  };
+
+  const handlePlanModification = async (modifiedPlan: WorkoutPlan) => {
+    setPendingPlan(modifiedPlan);
   };
 
   const handleStartWorkout = () => {
@@ -64,20 +101,37 @@ const Index = () => {
     return (
       <>
         <DarkModeToggle />
-        <OnboardingForm onComplete={handleOnboardingComplete} />
+        <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4 flex items-center justify-center">
+          {isGeneratingPlan ? (
+            <Card className="w-full max-w-md p-8 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated text-center">
+              <div className="space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                <h2 className="text-xl font-semibold">Generating Your Plan</h2>
+                <p className="text-muted-foreground">
+                  Our AI is analyzing your profile and creating a personalized workout plan...
+                </p>
+              </div>
+            </Card>
+          ) : (
+            <Card className="w-full max-w-4xl p-8 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
+              <OnboardingForm onComplete={handleOnboardingComplete} />
+            </Card>
+          )}
+        </div>
       </>
     );
   }
 
-  if (appState === 'schedule-approval') {
+  if (appState === 'schedule-approval' && pendingPlan) {
     return (
       <>
         <DarkModeToggle />
-        <OnboardingForm 
-          onComplete={handleOnboardingComplete} 
-          showScheduleApproval={true}
-          userData={userData}
-          onScheduleApproved={handleScheduleApproved}
+        <ScheduleApproval
+          workoutPlan={pendingPlan}
+          onApprove={handleScheduleApproved}
+          onModify={handlePlanModification}
+          isOpen={true}
+          onClose={() => setAppState('onboarding')}
         />
       </>
     );
