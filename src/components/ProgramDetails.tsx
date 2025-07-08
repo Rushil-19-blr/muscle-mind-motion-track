@@ -12,14 +12,19 @@ interface ProgramDetailsProps {
 }
 
 export const ProgramDetails: React.FC<ProgramDetailsProps> = ({ workoutPlan }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
   if (!workoutPlan) return null;
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
+        <Button variant="outline" className="justify-start h-12">
           <FileText className="w-4 h-4" />
-          Program Details
+          <div className="text-left">
+            <p className="font-medium">Program Details</p>
+            <p className="text-xs opacity-70">View full program overview</p>
+          </div>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[80vh] bg-glass/95 backdrop-blur-glass border-glass-border">

@@ -13,6 +13,7 @@ interface CalendarViewProps {
 
 export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [isOpen, setIsOpen] = useState(false);
   
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const months = [
@@ -96,7 +97,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="justify-start h-12">
           <Calendar className="w-5 h-5 mr-3" />
@@ -115,6 +116,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
 
         <ScrollArea className="h-[70vh] pr-4">
           <div className="space-y-4">
+            {!workoutPlan ? (
+              <Card className="p-8 text-center bg-glass/30 backdrop-blur-glass border-glass-border">
+                <Calendar className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Workout Plan</h3>
+                <p className="text-muted-foreground">Complete your onboarding to generate a personalized workout schedule.</p>
+              </Card>
+            ) : (
+              <>
             {/* Calendar Header */}
             <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border">
               <div className="flex items-center justify-between mb-4">
@@ -145,7 +154,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
             </Card>
 
             {/* Weekly Schedule Overview */}
-            {workoutPlan && (
               <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border">
                 <h4 className="font-semibold mb-3">Weekly Training Schedule</h4>
                 <div className="space-y-2">
@@ -170,6 +178,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
                   ))}
                 </div>
               </Card>
+              </>
             )}
           </div>
         </ScrollArea>

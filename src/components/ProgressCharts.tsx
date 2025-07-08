@@ -23,6 +23,8 @@ import {
 import { BarChart3, TrendingUp, Target, Calendar } from 'lucide-react';
 
 export const ProgressCharts: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  
   // Mock data - in real app this would come from user's workout history
   const strengthData = [
     { week: 'Week 1', benchPress: 70, squat: 85, deadlift: 110, overheadPress: 45 },
@@ -60,7 +62,7 @@ export const ProgressCharts: React.FC = () => {
   ];
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           <BarChart3 className="w-4 h-4 mr-2" />
