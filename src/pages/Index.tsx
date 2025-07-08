@@ -4,10 +4,11 @@ import { Card } from '@/components/ui/card';
 import OnboardingForm from '@/components/OnboardingForm';
 import Dashboard from '@/components/Dashboard';
 import WorkoutSession from '@/components/WorkoutSession';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
 
-type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout';
+type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval';
 
 interface UserData {
   name: string;
@@ -40,6 +41,10 @@ const Index = () => {
 
   const handleOnboardingComplete = (data: UserData) => {
     setUserData(data);
+    setAppState('schedule-approval');
+  };
+
+  const handleScheduleApproved = () => {
     setAppState('dashboard');
   };
 
@@ -56,30 +61,56 @@ const Index = () => {
   };
 
   if (appState === 'onboarding') {
-    return <OnboardingForm onComplete={handleOnboardingComplete} />;
+    return (
+      <>
+        <DarkModeToggle />
+        <OnboardingForm onComplete={handleOnboardingComplete} />
+      </>
+    );
+  }
+
+  if (appState === 'schedule-approval') {
+    return (
+      <>
+        <DarkModeToggle />
+        <OnboardingForm 
+          onComplete={handleOnboardingComplete} 
+          showScheduleApproval={true}
+          userData={userData}
+          onScheduleApproved={handleScheduleApproved}
+        />
+      </>
+    );
   }
 
   if (appState === 'dashboard' && userData) {
     return (
-      <Dashboard 
-        userName={userData.name} 
-        onStartWorkout={handleStartWorkout}
-      />
+      <>
+        <DarkModeToggle />
+        <Dashboard 
+          userName={userData.name} 
+          onStartWorkout={handleStartWorkout}
+        />
+      </>
     );
   }
 
   if (appState === 'workout') {
     return (
-      <WorkoutSession
-        onComplete={handleWorkoutComplete}
-        onExit={handleWorkoutExit}
-      />
+      <>
+        <DarkModeToggle />
+        <WorkoutSession
+          onComplete={handleWorkoutComplete}
+          onExit={handleWorkoutExit}
+        />
+      </>
     );
   }
 
   // Landing Page
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary">
+      <DarkModeToggle />
       
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">

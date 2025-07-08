@@ -459,6 +459,16 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
           </Button>
         </div>
       </Card>
+      
+      {pendingPlan && (
+        <ScheduleApproval
+          workoutPlan={pendingPlan}
+          onApprove={handlePlanApproval}
+          onModify={handlePlanModification}
+          isOpen={showApprovalDialog}
+          onClose={() => setShowApprovalDialog(false)}
+        />
+      )}
     </div>
   );
 };
