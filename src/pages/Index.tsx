@@ -77,6 +77,7 @@ const Index = () => {
 
   const handleScheduleApproved = (plan: WorkoutPlan) => {
     setWorkoutPlan(plan);
+    setPendingPlan(null);
     setAppState('dashboard');
     toast({
       title: "Plan Activated!",
@@ -86,6 +87,7 @@ const Index = () => {
 
   const handlePlanModification = async (modifiedPlan: WorkoutPlan) => {
     setPendingPlan(modifiedPlan);
+    // Stay in schedule-approval state to show the updated plan
   };
 
   const handleStartWorkout = () => {
