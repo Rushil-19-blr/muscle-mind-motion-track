@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight, Target, Dumbbell, User, Utensils } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ChevronLeft, ChevronRight, Target, Dumbbell, User, Utensils, Settings, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserData } from '@/pages/Index';
 
@@ -24,13 +25,39 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
     benchPress: '', squat: '', deadlift: '', overheadPress: '', pullUps: '', rows: '',
     primaryGoal: '', secondaryGoal: '', weeklyAvailability: '', preferredDays: []
   });
+  const [additionalSpecs, setAdditionalSpecs] = useState({
+    injuries: '',
+    medications: '',
+    sleepHours: '',
+    stressLevel: '',
+    workoutTime: '',
+    equipment: '',
+    experience: '',
+    motivation: ''
+  });
+  const [isSpecsDialogOpen, setIsSpecsDialogOpen] = useState(false);
+  const [changedFields, setChangedFields] = useState<Set<string>>(new Set());
   
   const { toast } = useToast();
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
 
   const updateUserData = (field: keyof UserData, value: string | string[]) => {
+    setChangedFields(prev => new Set(prev).add(field));
     setUserData(prev => ({ ...prev, [field]: value }));
+    
+    // Remove highlight after animation
+    setTimeout(() => {
+      setChangedFields(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(field);
+        return newSet;
+      });
+    }, 1000);
+  };
+
+  const updateAdditionalSpecs = (field: string, value: string) => {
+    setAdditionalSpecs(prev => ({ ...prev, [field]: value }));
   };
 
   const nextStep = () => {
@@ -52,7 +79,15 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
       title: "Profile Complete!",
       description: "Generating your personalized workout plan...",
     });
-    onComplete(userData);
+    onComplete({ ...userData, additionalSpecs });
+  };
+
+  const getInputClassName = (fieldName: string) => {
+    return `transition-all duration-300 ${
+      changedFields.has(fieldName) 
+        ? 'ring-2 ring-accent shadow-glow animate-pulse bg-accent/5' 
+        : ''
+    }`;
   };
 
   const renderStep = () => {
@@ -74,6 +109,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="Enter your name"
                   value={userData.name}
                   onChange={(e) => updateUserData('name', e.target.value)}
+                  className={getInputClassName('name')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -85,6 +122,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="25"
                   value={userData.age}
                   onChange={(e) => updateUserData('age', e.target.value)}
+                  className={getInputClassName('age')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -96,6 +135,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="175"
                   value={userData.height}
                   onChange={(e) => updateUserData('height', e.target.value)}
+                  className={getInputClassName('height')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -107,13 +148,15 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="70"
                   value={userData.weight}
                   onChange={(e) => updateUserData('weight', e.target.value)}
+                  className={getInputClassName('weight')}
+                  autoComplete="off"
                 />
               </div>
               
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="gender">Gender</Label>
                 <Select value={userData.gender} onValueChange={(value) => updateUserData('gender', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={getInputClassName('gender')}>
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                   <SelectContent>
@@ -145,6 +188,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="15"
                   value={userData.bodyFat}
                   onChange={(e) => updateUserData('bodyFat', e.target.value)}
+                  className={getInputClassName('bodyFat')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -155,13 +200,15 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="e.g., 60kg"
                   value={userData.muscleMass}
                   onChange={(e) => updateUserData('muscleMass', e.target.value)}
+                  className={getInputClassName('muscleMass')}
+                  autoComplete="off"
                 />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="dietStyle">Dietary Style</Label>
                 <Select value={userData.dietStyle} onValueChange={(value) => updateUserData('dietStyle', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={getInputClassName('dietStyle')}>
                     <SelectValue placeholder="Select diet style" />
                   </SelectTrigger>
                   <SelectContent>
@@ -183,6 +230,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="3"
                   value={userData.dailyMeals}
                   onChange={(e) => updateUserData('dailyMeals', e.target.value)}
+                  className={getInputClassName('dailyMeals')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -194,6 +243,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="2000"
                   value={userData.dailyCalories}
                   onChange={(e) => updateUserData('dailyCalories', e.target.value)}
+                  className={getInputClassName('dailyCalories')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -205,6 +256,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="120"
                   value={userData.proteinIntake}
                   onChange={(e) => updateUserData('proteinIntake', e.target.value)}
+                  className={getInputClassName('proteinIntake')}
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -229,6 +282,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   value={userData.currentProgram}
                   onChange={(e) => updateUserData('currentProgram', e.target.value)}
                   rows={4}
+                  className={getInputClassName('currentProgram')}
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -253,6 +308,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="60"
                   value={userData.benchPress}
                   onChange={(e) => updateUserData('benchPress', e.target.value)}
+                  className={getInputClassName('benchPress')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -264,6 +321,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="80"
                   value={userData.squat}
                   onChange={(e) => updateUserData('squat', e.target.value)}
+                  className={getInputClassName('squat')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -275,6 +334,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="100"
                   value={userData.deadlift}
                   onChange={(e) => updateUserData('deadlift', e.target.value)}
+                  className={getInputClassName('deadlift')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -286,6 +347,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="40"
                   value={userData.overheadPress}
                   onChange={(e) => updateUserData('overheadPress', e.target.value)}
+                  className={getInputClassName('overheadPress')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -297,6 +360,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="8"
                   value={userData.pullUps}
                   onChange={(e) => updateUserData('pullUps', e.target.value)}
+                  className={getInputClassName('pullUps')}
+                  autoComplete="off"
                 />
               </div>
               
@@ -308,6 +373,8 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                   placeholder="50"
                   value={userData.rows}
                   onChange={(e) => updateUserData('rows', e.target.value)}
+                  className={getInputClassName('rows')}
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -327,7 +394,7 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
               <div className="space-y-2">
                 <Label htmlFor="primaryGoal">Primary Goal</Label>
                 <Select value={userData.primaryGoal} onValueChange={(value) => updateUserData('primaryGoal', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={getInputClassName('primaryGoal')}>
                     <SelectValue placeholder="Select your primary goal" />
                   </SelectTrigger>
                   <SelectContent>
@@ -343,7 +410,7 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
               <div className="space-y-2">
                 <Label htmlFor="secondaryGoal">Secondary Goal (Optional)</Label>
                 <Select value={userData.secondaryGoal} onValueChange={(value) => updateUserData('secondaryGoal', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={getInputClassName('secondaryGoal')}>
                     <SelectValue placeholder="Select secondary goal" />
                   </SelectTrigger>
                   <SelectContent>
@@ -360,7 +427,7 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
               <div className="space-y-2">
                 <Label htmlFor="weeklyAvailability">Weekly Training Availability</Label>
                 <Select value={userData.weeklyAvailability} onValueChange={(value) => updateUserData('weeklyAvailability', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={getInputClassName('weeklyAvailability')}>
                     <SelectValue placeholder="How many days per week?" />
                   </SelectTrigger>
                   <SelectContent>
@@ -371,6 +438,134 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
                     <SelectItem value="7">7 days per week</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              
+              {/* Additional Specifications Dialog */}
+              <div className="space-y-2 md:col-span-2">
+                <Dialog open={isSpecsDialogOpen} onOpenChange={setIsSpecsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full flex items-center gap-2">
+                      <Plus className="w-4 h-4" />
+                      Additional Specifications (Optional)
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-glass/95 backdrop-blur-glass border-glass-border">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Settings className="w-5 h-5" />
+                        Additional Specifications
+                      </DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="injuries">Injuries/Limitations</Label>
+                        <Textarea
+                          id="injuries"
+                          placeholder="Any injuries or physical limitations..."
+                          value={additionalSpecs.injuries}
+                          onChange={(e) => updateAdditionalSpecs('injuries', e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="medications">Medications</Label>
+                        <Textarea
+                          id="medications"
+                          placeholder="Any medications that might affect training..."
+                          value={additionalSpecs.medications}
+                          onChange={(e) => updateAdditionalSpecs('medications', e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="sleepHours">Average Sleep Hours</Label>
+                        <Input
+                          id="sleepHours"
+                          type="number"
+                          placeholder="7-8"
+                          value={additionalSpecs.sleepHours}
+                          onChange={(e) => updateAdditionalSpecs('sleepHours', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="stressLevel">Stress Level (1-10)</Label>
+                        <Input
+                          id="stressLevel"
+                          type="number"
+                          placeholder="5"
+                          min="1"
+                          max="10"
+                          value={additionalSpecs.stressLevel}
+                          onChange={(e) => updateAdditionalSpecs('stressLevel', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="workoutTime">Preferred Workout Time</Label>
+                        <Select value={additionalSpecs.workoutTime} onValueChange={(value) => updateAdditionalSpecs('workoutTime', value)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="early-morning">Early Morning (5-7 AM)</SelectItem>
+                            <SelectItem value="morning">Morning (7-10 AM)</SelectItem>
+                            <SelectItem value="midday">Midday (10 AM-2 PM)</SelectItem>
+                            <SelectItem value="afternoon">Afternoon (2-6 PM)</SelectItem>
+                            <SelectItem value="evening">Evening (6-9 PM)</SelectItem>
+                            <SelectItem value="night">Night (9 PM+)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="equipment">Available Equipment</Label>
+                        <Textarea
+                          id="equipment"
+                          placeholder="List available equipment (dumbbells, barbell, machines, etc.)"
+                          value={additionalSpecs.equipment}
+                          onChange={(e) => updateAdditionalSpecs('equipment', e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="experience">Training Experience</Label>
+                        <Select value={additionalSpecs.experience} onValueChange={(value) => updateAdditionalSpecs('experience', value)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select experience level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="beginner">Beginner (0-6 months)</SelectItem>
+                            <SelectItem value="novice">Novice (6 months - 2 years)</SelectItem>
+                            <SelectItem value="intermediate">Intermediate (2-5 years)</SelectItem>
+                            <SelectItem value="advanced">Advanced (5+ years)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="motivation">Motivation/Why</Label>
+                        <Textarea
+                          id="motivation"
+                          placeholder="What motivates you to train? What are you trying to achieve?"
+                          value={additionalSpecs.motivation}
+                          onChange={(e) => updateAdditionalSpecs('motivation', e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button onClick={() => setIsSpecsDialogOpen(false)}>
+                        Save Specifications
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </div>

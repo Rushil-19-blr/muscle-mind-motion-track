@@ -6,6 +6,8 @@ import Dashboard from '@/components/Dashboard';
 import WorkoutSession from '@/components/WorkoutSession';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { ScheduleApproval } from '@/components/ScheduleApproval';
+import { LoadingAnimation } from '@/components/LoadingAnimation';
+import { RexChatbot } from '@/components/RexChatbot';
 import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
@@ -37,6 +39,7 @@ export interface UserData {
   secondaryGoal: string;
   weeklyAvailability: string;
   preferredDays: string[];
+  additionalSpecs?: any;
 }
 
 const Index = () => {
@@ -103,15 +106,7 @@ const Index = () => {
         <DarkModeToggle />
         <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4 flex items-center justify-center">
           {isGeneratingPlan ? (
-            <Card className="w-full max-w-md p-8 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated text-center">
-              <div className="space-y-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                <h2 className="text-xl font-semibold">Generating Your Plan</h2>
-                <p className="text-muted-foreground">
-                  Our AI is analyzing your profile and creating a personalized workout plan...
-                </p>
-              </div>
-            </Card>
+            <LoadingAnimation message="Our AI is analyzing your profile and creating a personalized workout plan..." />
           ) : (
             <Card className="w-full max-w-4xl p-8 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
               <OnboardingForm onComplete={handleOnboardingComplete} />
@@ -141,6 +136,7 @@ const Index = () => {
     return (
       <>
         <DarkModeToggle />
+        <RexChatbot userData={userData} />
         <Dashboard 
           userName={userData.name} 
           onStartWorkout={handleStartWorkout}
@@ -153,6 +149,7 @@ const Index = () => {
     return (
       <>
         <DarkModeToggle />
+        <RexChatbot userData={userData} isWorkoutMode={true} />
         <WorkoutSession
           onComplete={handleWorkoutComplete}
           onExit={handleWorkoutExit}

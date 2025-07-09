@@ -52,10 +52,11 @@ export interface UserData {
   secondaryGoal: string;
   weeklyAvailability: string;
   preferredDays: string[];
+  additionalSpecs?: any;
 }
 
 export class GoogleAIService {
-  private model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  public model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   async generateWorkoutPlan(userData: UserData): Promise<WorkoutPlan> {
     const prompt = `
@@ -91,6 +92,18 @@ export class GoogleAIService {
       - Protein Intake: ${userData.proteinIntake}g
       
       Current Program: ${userData.currentProgram}
+      
+      ${userData.additionalSpecs ? `
+      Additional Specifications:
+      - Injuries/Limitations: ${userData.additionalSpecs.injuries || 'None specified'}
+      - Medications: ${userData.additionalSpecs.medications || 'None specified'}
+      - Sleep Hours: ${userData.additionalSpecs.sleepHours || 'Not specified'}
+      - Stress Level: ${userData.additionalSpecs.stressLevel || 'Not specified'}/10
+      - Preferred Workout Time: ${userData.additionalSpecs.workoutTime || 'Not specified'}
+      - Available Equipment: ${userData.additionalSpecs.equipment || 'Standard gym equipment'}
+      - Training Experience: ${userData.additionalSpecs.experience || 'Not specified'}
+      - Motivation: ${userData.additionalSpecs.motivation || 'General fitness improvement'}
+      ` : ''}
       
       IMPORTANT: You must respond with ONLY a valid JSON object, no additional text or formatting. The JSON should follow this exact structure:
       
