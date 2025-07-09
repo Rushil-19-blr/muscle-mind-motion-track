@@ -247,13 +247,36 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout }) => {
           </Card>
         </div>
 
-        {/* Motivational Quote */}
-        <Card className="p-6 bg-gradient-to-r from-accent/10 to-primary/10 border-accent/20 backdrop-blur-glass text-center">
-          <blockquote className="text-lg font-medium italic text-foreground">
-            "The groundwork for all happiness is good health."
-          </blockquote>
-          <p className="text-sm text-muted-foreground mt-2">— Leigh Hunt</p>
-        </Card>
+        {/* Motivational Quotes */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="p-6 bg-gradient-to-r from-accent/10 to-primary/10 border-accent/20 backdrop-blur-glass text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <img 
+                src="/lovable-uploads/7efaaa9c-effc-4d82-a2ac-e0998cbe814d.png" 
+                alt="Dumbbell" 
+                className="w-8 h-8"
+              />
+              <blockquote className="text-lg font-medium italic text-foreground">
+                "The groundwork for all happiness is good health."
+              </blockquote>
+            </div>
+            <p className="text-sm text-muted-foreground">— Leigh Hunt</p>
+          </Card>
+          
+          <Card className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20 backdrop-blur-glass text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <img 
+                src="/lovable-uploads/7efaaa9c-effc-4d82-a2ac-e0998cbe814d.png" 
+                alt="Dumbbell" 
+                className="w-8 h-8"
+              />
+              <blockquote className="text-lg font-medium italic text-foreground">
+                "Success isn't always about greatness. It's about consistency."
+              </blockquote>
+            </div>
+            <p className="text-sm text-muted-foreground">— Dwayne Johnson</p>
+          </Card>
+        </div>
       </div>
     </div>
   );

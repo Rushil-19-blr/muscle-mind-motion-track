@@ -1,25 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
+import { Progress } from '@/components/ui/progress';
 import { BarChart3, TrendingUp, Target, Calendar } from 'lucide-react';
 
 export const ProgressCharts: React.FC = () => {
@@ -91,49 +77,42 @@ export const ProgressCharts: React.FC = () => {
                   <TrendingUp className="w-5 h-5 text-success" />
                   <h3 className="text-lg font-semibold">Strength Progress</h3>
                 </div>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineChart data={strengthData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--glass-border))" />
-                    <XAxis dataKey="week" stroke="hsl(var(--foreground))" />
-                    <YAxis stroke="hsl(var(--foreground))" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--glass))', 
-                        border: '1px solid hsl(var(--glass-border))',
-                        borderRadius: '8px'
-                      }} 
-                    />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="benchPress" 
-                      stroke="hsl(var(--primary))" 
-                      strokeWidth={2}
-                      name="Bench Press (kg)"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="squat" 
-                      stroke="hsl(var(--secondary))" 
-                      strokeWidth={2}
-                      name="Squat (kg)"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="deadlift" 
-                      stroke="hsl(var(--accent))" 
-                      strokeWidth={2}
-                      name="Deadlift (kg)"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="overheadPress" 
-                      stroke="hsl(var(--warning))" 
-                      strokeWidth={2}
-                      name="Overhead Press (kg)"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Bench Press</span>
+                        <span className="font-medium">82 kg</span>
+                      </div>
+                      <Progress value={75} className="h-2" />
+                      <p className="text-xs text-muted-foreground">+12 kg from start</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Squat</span>
+                        <span className="font-medium">97 kg</span>
+                      </div>
+                      <Progress value={80} className="h-2" />
+                      <p className="text-xs text-muted-foreground">+12 kg from start</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Deadlift</span>
+                        <span className="font-medium">122 kg</span>
+                      </div>
+                      <Progress value={85} className="h-2" />
+                      <p className="text-xs text-muted-foreground">+12 kg from start</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Overhead Press</span>
+                        <span className="font-medium">51 kg</span>
+                      </div>
+                      <Progress value={70} className="h-2" />
+                      <p className="text-xs text-muted-foreground">+6 kg from start</p>
+                    </div>
+                  </div>
+                </div>
               </Card>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -168,23 +147,25 @@ export const ProgressCharts: React.FC = () => {
                   <BarChart3 className="w-5 h-5 text-primary" />
                   <h3 className="text-lg font-semibold">Training Volume</h3>
                 </div>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={volumeData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--glass-border))" />
-                    <XAxis dataKey="week" stroke="hsl(var(--foreground))" />
-                    <YAxis stroke="hsl(var(--foreground))" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--glass))', 
-                        border: '1px solid hsl(var(--glass-border))',
-                        borderRadius: '8px'
-                      }} 
-                    />
-                    <Legend />
-                    <Bar dataKey="upperBody" fill="hsl(var(--primary))" name="Upper Body (kg)" />
-                    <Bar dataKey="lowerBody" fill="hsl(var(--secondary))" name="Lower Body (kg)" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="p-4 bg-glass/20 backdrop-blur-glass border-glass-border">
+                      <h4 className="font-medium text-sm mb-2">Total Volume</h4>
+                      <p className="text-2xl font-bold text-primary">11.8k kg</p>
+                      <p className="text-xs text-muted-foreground">This week</p>
+                    </Card>
+                    <Card className="p-4 bg-glass/20 backdrop-blur-glass border-glass-border">
+                      <h4 className="font-medium text-sm mb-2">Upper Body</h4>
+                      <p className="text-2xl font-bold text-secondary">5.8k kg</p>
+                      <p className="text-xs text-muted-foreground">49% of total</p>
+                    </Card>
+                    <Card className="p-4 bg-glass/20 backdrop-blur-glass border-glass-border">
+                      <h4 className="font-medium text-sm mb-2">Lower Body</h4>
+                      <p className="text-2xl font-bold text-accent">6.0k kg</p>
+                      <p className="text-xs text-muted-foreground">51% of total</p>
+                    </Card>
+                  </div>
+                </div>
               </Card>
             </TabsContent>
 
@@ -194,23 +175,30 @@ export const ProgressCharts: React.FC = () => {
                   <Calendar className="w-5 h-5 text-accent" />
                   <h3 className="text-lg font-semibold">Workout Consistency</h3>
                 </div>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={workoutConsistency}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--glass-border))" />
-                    <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
-                    <YAxis stroke="hsl(var(--foreground))" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--glass))', 
-                        border: '1px solid hsl(var(--glass-border))',
-                        borderRadius: '8px'
-                      }} 
-                    />
-                    <Legend />
-                    <Bar dataKey="planned" fill="hsl(var(--muted))" name="Planned Workouts" />
-                    <Bar dataKey="completed" fill="hsl(var(--success))" name="Completed Workouts" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Card className="p-4 bg-success/10 border-success/20">
+                      <h4 className="font-medium text-sm mb-2">This Month</h4>
+                      <p className="text-2xl font-bold text-success">15/16</p>
+                      <p className="text-xs text-muted-foreground">Completed</p>
+                    </Card>
+                    <Card className="p-4 bg-primary/10 border-primary/20">
+                      <h4 className="font-medium text-sm mb-2">Streak</h4>
+                      <p className="text-2xl font-bold text-primary">7</p>
+                      <p className="text-xs text-muted-foreground">Days</p>
+                    </Card>
+                    <Card className="p-4 bg-warning/10 border-warning/20">
+                      <h4 className="font-medium text-sm mb-2">Total</h4>
+                      <p className="text-2xl font-bold text-warning">94</p>
+                      <p className="text-xs text-muted-foreground">Workouts</p>
+                    </Card>
+                    <Card className="p-4 bg-accent/10 border-accent/20">
+                      <h4 className="font-medium text-sm mb-2">Success Rate</h4>
+                      <p className="text-2xl font-bold text-accent">94%</p>
+                      <p className="text-xs text-muted-foreground">Average</p>
+                    </Card>
+                  </div>
+                </div>
               </Card>
             </TabsContent>
 
@@ -220,40 +208,19 @@ export const ProgressCharts: React.FC = () => {
                   <Target className="w-5 h-5 text-secondary" />
                   <h3 className="text-lg font-semibold">Muscle Group Distribution</h3>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={muscleGroupData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="sessions"
-                      >
-                        {muscleGroupData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="space-y-3">
-                    {muscleGroupData.map((group, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-glass/20 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div 
-                            className="w-4 h-4 rounded-full" 
-                            style={{ backgroundColor: group.color }}
-                          />
-                          <span className="font-medium">{group.name}</span>
-                        </div>
+                <div className="space-y-3">
+                  {muscleGroupData.map((group, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{group.name}</span>
                         <Badge variant="outline">{group.sessions} sessions</Badge>
                       </div>
-                    ))}
-                  </div>
+                      <Progress 
+                        value={(group.sessions / 14) * 100} 
+                        className="h-2"
+                      />
+                    </div>
+                  ))}
                 </div>
               </Card>
             </TabsContent>
