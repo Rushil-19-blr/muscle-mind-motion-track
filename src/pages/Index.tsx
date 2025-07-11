@@ -8,6 +8,7 @@ import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { ScheduleApproval } from '@/components/ScheduleApproval';
 import { LoadingAnimation } from '@/components/LoadingAnimation';
 import { RexChatbot } from '@/components/RexChatbot';
+import { QuoteTicker } from '@/components/QuoteTicker';
 import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
 import { ModifySchedule } from '@/components/ModifySchedule';
 import { ViewPlan } from '@/components/ViewPlan';
@@ -149,13 +150,14 @@ const Index = () => {
     return (
       <>
         <DarkModeToggle />
-        {userData && <RexChatbot userData={userData} workoutPlan={workoutPlan} />}
+        {userData && <RexChatbot userData={userData} workoutPlan={workoutPlan} onPlanModified={setWorkoutPlan} />}
         <Dashboard 
           userName={userData?.name || 'User'} 
           onStartWorkout={handleStartWorkout}
           onModifySchedule={handleModifySchedule}
           onViewPlan={handleViewPlan}
         />
+        <QuoteTicker />
       </>
     );
   }

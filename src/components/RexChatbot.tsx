@@ -4,8 +4,9 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Send, Bot, User, X, Minimize2, Maximize2 } from 'lucide-react';
-import { googleAIService } from '@/services/GoogleAIService';
+import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,13 +22,15 @@ interface RexChatbotProps {
   workoutPlan?: any;
   isWorkoutMode?: boolean;
   currentExercise?: string;
+  onPlanModified?: (plan: WorkoutPlan) => void;
 }
 
 export const RexChatbot: React.FC<RexChatbotProps> = ({ 
   userData, 
   workoutPlan,
   isWorkoutMode = false,
-  currentExercise 
+  currentExercise,
+  onPlanModified
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -41,6 +44,8 @@ export const RexChatbot: React.FC<RexChatbotProps> = ({
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingModification, setPendingModification] = useState<WorkoutPlan | null>(null);
+  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { toast } = useToast();
@@ -102,6 +107,24 @@ export const RexChatbot: React.FC<RexChatbotProps> = ({
       dayOfWeek: new Date().toLocaleDateString('en-US', { weekday: 'long' })
     };
 
+    // Check if user is asking to modify the workout plan
+    const modifyKeywords = ['modify', 'change', 'adjust', 'update', 'alter', 'customize'];
+    const isModifyRequest = modifyKeywords.some(keyword => 
+      userInput.toLowerCase().includes(keyword)
+    ) && userInput.toLowerCase().includes('plan');
+
+    if (isModifyRequest && workoutPlan) {
+      try {
+        const modifiedPlan = await googleAIService.adaptWorkoutPlan(workoutPlan, userInput);
+        setPendingModification(modifiedPlan);
+        setShowApprovalDialog(true);
+        return `I've created a modified workout plan based on your request! Please review the changes and let me know if you'd like to approve them. 💪`;
+      } catch (error) {
+        console.error('Error modifying plan:', error);
+        return "I had trouble modifying your plan. Could you try rephrasing your request?";
+      }
+    }
+
     const prompt = `
       You are Rex, an AI fitness assistant and personal trainer. You are helpful, motivational, and knowledgeable about fitness, nutrition, and health. Always respond in a friendly, encouraging tone with appropriate emojis.
 
@@ -121,6 +144,7 @@ export const RexChatbot: React.FC<RexChatbotProps> = ({
       5. Be encouraging and motivational
       6. Keep responses concise but helpful (2-3 sentences max unless detailed explanation needed)
       7. If you don't have specific information, be honest but still helpful
+      8. If the user wants to modify their workout plan, tell them to use phrases like "modify my plan" or "change my workout"
 
       Respond as Rex:
     `;
@@ -133,6 +157,27 @@ export const RexChatbot: React.FC<RexChatbotProps> = ({
       console.error('Error generating Rex response:', error);
       return "I'm having some technical difficulties right now, but I'm here to help! Could you try asking your question again?";
     }
+  };
+
+  const handleApproveModification = () => {
+    if (pendingModification && onPlanModified) {
+      onPlanModified(pendingModification);
+      toast({
+        title: "Plan Updated!",
+        description: "Your workout plan has been successfully modified.",
+      });
+    }
+    setPendingModification(null);
+    setShowApprovalDialog(false);
+  };
+
+  const handleRejectModification = () => {
+    setPendingModification(null);
+    setShowApprovalDialog(false);
+    toast({
+      title: "Changes Rejected",
+      description: "Your original workout plan remains unchanged.",
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -274,6 +319,63 @@ export const RexChatbot: React.FC<RexChatbotProps> = ({
           </>
         )}
       </Card>
+
+      {/* Plan Modification Approval Dialog */}
+      {showApprovalDialog && pendingModification && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl max-h-[80vh] bg-glass/95 backdrop-blur-glass border-glass-border shadow-elevated overflow-hidden">
+            <div className="p-6 border-b border-glass-border">
+              <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Plan Modification Preview
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Review the changes and approve or reject them
+              </p>
+            </div>
+            
+            <ScrollArea className="max-h-[50vh] p-6">
+              <div className="space-y-4">
+                {pendingModification.days.map((day, index) => (
+                  <div key={index} className="p-4 bg-glass/30 rounded-lg border border-primary/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="outline">{day.day}</Badge>
+                      <h4 className="font-semibold">{day.name}</h4>
+                      <span className="text-sm text-muted-foreground">({day.duration} min)</span>
+                    </div>
+                    <div className="space-y-1">
+                      {day.exercises.map((exercise, exIndex) => (
+                        <div key={exIndex} className="text-sm p-2 bg-accent/10 rounded border border-accent/20">
+                          <span className="font-medium text-accent">{exercise.name}</span>
+                          <span className="text-muted-foreground ml-2">
+                            {exercise.sets} sets × {exercise.reps} reps
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+
+            <div className="p-6 border-t border-glass-border flex gap-3">
+              <Button 
+                onClick={handleRejectModification}
+                variant="outline" 
+                className="flex-1"
+              >
+                Reject Changes
+              </Button>
+              <Button 
+                onClick={handleApproveModification}
+                variant="accent" 
+                className="flex-1"
+              >
+                Approve & Apply
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

@@ -65,21 +65,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
               {day}
             </span>
             {workout && (
-              <div className="flex-1 flex flex-col justify-center">
-                <div className="flex items-center gap-1 mb-1">
-                  <Dumbbell className="w-3 h-3 text-accent" />
-                  <span className="text-xs font-medium text-accent truncate">
-                    {workout.name}
-                  </span>
+              <div className="flex-1 flex flex-col justify-center space-y-1">
+                <div className="grid grid-cols-2 gap-1">
+                  {workout.exercises.slice(0, 4).map((exercise, idx) => (
+                    <div 
+                      key={idx}
+                      className="text-[8px] px-1 py-0.5 bg-accent/20 text-accent rounded border border-accent/30 truncate"
+                    >
+                      {exercise.name.split(' ')[0]}
+                    </div>
+                  ))}
                 </div>
-                <div className="text-xs text-muted-foreground mb-1">
-                  {workout.exercises.length} exercises
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">
-                    {workout.duration}min
-                  </span>
+                <div className="flex items-center justify-between text-[9px] text-muted-foreground">
+                  <span>{workout.exercises.length} ex</span>
+                  <span>{workout.duration}min</span>
                 </div>
               </div>
             )}
