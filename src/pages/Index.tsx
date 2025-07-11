@@ -145,13 +145,13 @@ const Index = () => {
     );
   }
 
-  if (appState === 'dashboard' && userData) {
+  if (appState === 'dashboard') {
     return (
       <>
         <DarkModeToggle />
-        <RexChatbot userData={userData} workoutPlan={workoutPlan} />
+        {userData && <RexChatbot userData={userData} workoutPlan={workoutPlan} />}
         <Dashboard 
-          userName={userData.name} 
+          userName={userData?.name || 'User'} 
           onStartWorkout={handleStartWorkout}
           onModifySchedule={handleModifySchedule}
           onViewPlan={handleViewPlan}

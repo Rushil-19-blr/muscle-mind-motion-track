@@ -18,7 +18,8 @@ import {
   Clock, 
   Target,
   Plus,
-  Trash2
+  Trash2,
+  Calendar
 } from 'lucide-react';
 import { WorkoutPlan, Exercise } from '@/services/GoogleAIService';
 import { googleAIService } from '@/services/GoogleAIService';

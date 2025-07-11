@@ -42,7 +42,7 @@ export const RexChatbot: React.FC<RexChatbotProps> = ({
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { workoutPlan } = useWorkoutPlan();
+  
   const { toast } = useToast();
 
   const scrollToBottom = () => {
