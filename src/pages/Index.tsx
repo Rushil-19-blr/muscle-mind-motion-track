@@ -9,14 +9,11 @@ import { ScheduleApproval } from '@/components/ScheduleApproval';
 import { LoadingAnimation } from '@/components/LoadingAnimation';
 import { RexChatbot } from '@/components/RexChatbot';
 import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
-import { ModifySchedule } from '@/components/ModifySchedule';
-import { ViewPlan } from '@/components/ViewPlan';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
 import { useToast } from '@/hooks/use-toast';
 
-type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval';
 type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval' | 'modify-schedule' | 'view-plan';
 
 export interface UserData {
@@ -189,6 +186,7 @@ const Index = () => {
       </>
     );
   }
+
   if (appState === 'workout') {
     return (
       <>
@@ -253,8 +251,7 @@ const Index = () => {
               </div>
 
               {/* Stats */}
-                </div>
-                <div>
+            </div>
           </div>
         </div>
       </section>
