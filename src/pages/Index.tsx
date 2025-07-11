@@ -9,6 +9,8 @@ import { ScheduleApproval } from '@/components/ScheduleApproval';
 import { LoadingAnimation } from '@/components/LoadingAnimation';
 import { RexChatbot } from '@/components/RexChatbot';
 import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
+import { ModifySchedule } from '@/components/ModifySchedule';
+import { ViewPlan } from '@/components/ViewPlan';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
@@ -47,7 +49,7 @@ const Index = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [pendingPlan, setPendingPlan] = useState<WorkoutPlan | null>(null);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
-  const { setWorkoutPlan } = useWorkoutPlan();
+  const { setWorkoutPlan, workoutPlan } = useWorkoutPlan();
   const { toast } = useToast();
 
   const handleOnboardingComplete = async (data: UserData) => {
