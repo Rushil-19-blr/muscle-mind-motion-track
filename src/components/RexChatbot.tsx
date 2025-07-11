@@ -18,12 +18,14 @@ interface Message {
 
 interface RexChatbotProps {
   userData?: any;
+  workoutPlan?: any;
   isWorkoutMode?: boolean;
   currentExercise?: string;
 }
 
 export const RexChatbot: React.FC<RexChatbotProps> = ({ 
   userData, 
+  workoutPlan,
   isWorkoutMode = false,
   currentExercise 
 }) => {
@@ -93,7 +95,7 @@ export const RexChatbot: React.FC<RexChatbotProps> = ({
   const getRexResponse = async (userInput: string): Promise<string> => {
     const contextInfo = {
       userData: userData || {},
-      workoutPlan: workoutPlan || {},
+      workoutPlan: workoutPlan || null,
       isWorkoutMode,
       currentExercise: currentExercise || '',
       currentDate: new Date().toLocaleDateString(),

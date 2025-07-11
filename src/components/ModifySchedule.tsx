@@ -46,6 +46,7 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
     exercise: Exercise;
   } | null>(null);
   const [localPlan, setLocalPlan] = useState<WorkoutPlan | null>(workoutPlan);
+  const [modifiedExercises, setModifiedExercises] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   const handleRexModification = async () => {
@@ -62,6 +63,7 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
     try {
       const modifiedPlan = await googleAIService.adaptWorkoutPlan(workoutPlan, rexModifications);
       onPlanUpdated(modifiedPlan);
+      setRexModifications('');
       toast({
         title: "Plan Modified by Rex! 🤖",
         description: "Your workout plan has been updated based on your feedback.",
@@ -89,6 +91,19 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
 
     const updatedPlan = { ...localPlan };
     updatedPlan.days[editingExercise.dayIndex].exercises[editingExercise.exerciseIndex] = editingExercise.exercise;
+    
+    // Add to modified exercises set for highlighting
+    const exerciseKey = `${editingExercise.dayIndex}-${editingExercise.exerciseIndex}`;
+    setModifiedExercises(prev => new Set(prev).add(exerciseKey));
+    
+    // Remove highlight after 3 seconds
+    setTimeout(() => {
+      setModifiedExercises(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(exerciseKey);
+        return newSet;
+      });
+    }, 3000);
     
     setLocalPlan(updatedPlan);
     setEditingExercise(null);
@@ -254,7 +269,14 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
                 
                 <div className="space-y-4">
                   {day.exercises.map((exercise, exerciseIndex) => (
-                    <Card key={exerciseIndex} className="p-4 bg-glass/20 border-glass-border/50">
+                    <Card 
+                      key={exerciseIndex} 
+                      className={`p-4 transition-all duration-500 ${
+                        modifiedExercises.has(`${dayIndex}-${exerciseIndex}`)
+                          ? 'bg-accent/20 border-accent shadow-glow animate-pulse'
+                          : 'bg-glass/20 border-glass-border/50'
+                      }`}
+                    >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <Dumbbell className="w-4 h-4 text-primary" />

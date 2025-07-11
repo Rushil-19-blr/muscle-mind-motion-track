@@ -80,6 +80,7 @@ const Index = () => {
   const handleScheduleApproved = (plan: WorkoutPlan) => {
     setWorkoutPlan(plan);
     setPendingPlan(null);
+    setIsGeneratingPlan(false);
     setAppState('dashboard');
     toast({
       title: "Plan Activated!",
@@ -148,7 +149,7 @@ const Index = () => {
     return (
       <>
         <DarkModeToggle />
-        <RexChatbot userData={userData} />
+        <RexChatbot userData={userData} workoutPlan={workoutPlan} />
         <Dashboard 
           userName={userData.name} 
           onStartWorkout={handleStartWorkout}
@@ -163,7 +164,7 @@ const Index = () => {
     return (
       <>
         <DarkModeToggle />
-        <RexChatbot userData={userData} />
+        <RexChatbot userData={userData} workoutPlan={workoutPlan} />
         <ModifySchedule 
           workoutPlan={workoutPlan}
           onBack={() => setAppState('dashboard')}
@@ -193,7 +194,7 @@ const Index = () => {
     return (
       <>
         <DarkModeToggle />
-        <RexChatbot userData={userData} isWorkoutMode={true} />
+        <RexChatbot userData={userData} workoutPlan={workoutPlan} isWorkoutMode={true} />
         <WorkoutSession
           onComplete={handleWorkoutComplete}
           onExit={handleWorkoutExit}

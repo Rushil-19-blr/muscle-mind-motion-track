@@ -37,7 +37,6 @@ export const ScheduleApproval: React.FC<ScheduleApprovalProps> = ({
       title: "Plan Approved! 🎉",
       description: "Your personalized workout plan is now active.",
     });
-    // Don't call onClose() here - let the parent handle the state transition
   };
 
   const handleModify = async () => {

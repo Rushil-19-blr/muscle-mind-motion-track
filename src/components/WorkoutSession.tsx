@@ -18,6 +18,8 @@ import {
   Zap
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
+import { Calendar } from 'lucide-react';
 
 interface Exercise {
   id: string;

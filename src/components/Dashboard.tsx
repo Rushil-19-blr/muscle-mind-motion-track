@@ -17,8 +17,8 @@ import {
 import { CalendarView } from '@/components/CalendarView';
 import { ProgressCharts } from '@/components/ProgressCharts';
 import { ProgramDetails } from '@/components/ProgramDetails';
+import { Edit3 } from 'lucide-react';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
-import dashboardIcons from '@/assets/dashboard-icons.jpg';
 
 interface DashboardProps {
   userName: string;
@@ -60,6 +60,14 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
         {/* Welcome Header */}
         <div className="text-center space-y-4 py-8">
           <div className="flex justify-end mb-4">
+            <Button 
+              variant="outline" 
+              onClick={onModifySchedule}
+              className="flex items-center gap-2 mr-2"
+            >
+              <Edit3 className="w-4 h-4" />
+              Modify Schedule
+            </Button>
             <Button 
               variant="outline" 
               onClick={onViewPlan}
