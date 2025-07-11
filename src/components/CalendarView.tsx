@@ -72,6 +72,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
                     {workout.name}
                   </span>
                 </div>
+                <div className="text-xs text-muted-foreground mb-1">
+                  {workout.exercises.length} exercises
+                </div>
                 <div className="flex items-center gap-1">
                   <Clock className="w-3 h-3 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">

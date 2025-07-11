@@ -37,6 +37,7 @@ interface WorkoutSessionProps {
 }
 
 const WorkoutSession: React.FC<WorkoutSessionProps> = ({ onComplete, onExit }) => {
+  const { workoutPlan } = useWorkoutPlan();
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [currentSet, setCurrentSet] = useState(1);
   const [restTimer, setRestTimer] = useState(0);
@@ -49,97 +50,49 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ onComplete, onExit }) =
   
   const { toast } = useToast();
 
-  // Mock workout data - in real app this would come from AI-generated program
-  const workout: Exercise[] = [
-    {
-      id: '1',
-      name: 'Bench Press',
-      sets: 4,
-      reps: '8-10',
-      weight: '70',
-      restTime: 180,
-      muscleGroups: ['Chest', 'Triceps', 'Shoulders'],
-      instructions: [
-        'Lie flat on bench with eyes under barbell',
-        'Grip bar slightly wider than shoulder-width',
-        'Lower bar to chest with control',
-        'Press bar up explosively to full arm extension'
+  // Get today's workout from the actual plan
+  const getTodaysWorkout = () => {
+    if (!workoutPlan) return [];
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const todaysWorkoutDay = workoutPlan.days.find(day => day.day === today);
+    
+    if (!todaysWorkoutDay) return [];
+    
+    // Convert workout plan exercises to the Exercise interface format
+    return todaysWorkoutDay.exercises.map((exercise, index) => ({
+      id: `${index + 1}`,
+      name: exercise.name,
+      sets: exercise.sets,
+      reps: exercise.reps,
+      weight: exercise.weight,
+      restTime: parseInt(exercise.restTime.split(' ')[0]) || 120, // Extract seconds from "2-3 minutes"
+      muscleGroups: exercise.muscleGroups,
+      instructions: exercise.notes ? [exercise.notes] : [
+        'Maintain proper form throughout the movement',
+        'Control the weight on both concentric and eccentric phases',
+        'Breathe properly during the exercise',
+        'Focus on the target muscle groups'
       ]
-    },
-    {
-      id: '2',
-      name: 'Pull-ups',
-      sets: 3,
-      reps: '6-8',
-      restTime: 120,
-      muscleGroups: ['Lats', 'Rhomboids', 'Biceps'],
-      instructions: [
-        'Hang from bar with palms facing away',
-        'Pull body up until chin clears bar',
-        'Lower with control to full arm extension',
-        'Avoid swinging or kipping'
-      ]
-    },
-    {
-      id: '3',
-      name: 'Overhead Press',
-      sets: 4,
-      reps: '6-8',
-      weight: '45',
-      restTime: 180,
-      muscleGroups: ['Shoulders', 'Triceps', 'Core'],
-      instructions: [
-        'Stand with feet shoulder-width apart',
-        'Hold bar at shoulder level with overhand grip',
-        'Press bar straight up overhead',
-        'Lower with control to starting position'
-      ]
-    },
-    {
-      id: '4',
-      name: 'Incline Dumbbell Press',
-      sets: 3,
-      reps: '10-12',
-      weight: '25',
-      restTime: 120,
-      muscleGroups: ['Upper Chest', 'Shoulders', 'Triceps'],
-      instructions: [
-        'Set bench to 30-45 degree incline',
-        'Hold dumbbells at chest level',
-        'Press dumbbells up and slightly together',
-        'Lower with control to starting position'
-      ]
-    },
-    {
-      id: '5',
-      name: 'Tricep Dips',
-      sets: 3,
-      reps: '8-12',
-      restTime: 90,
-      muscleGroups: ['Triceps', 'Chest', 'Shoulders'],
-      instructions: [
-        'Position hands on dip bars or bench edge',
-        'Start with arms fully extended',
-        'Lower body by bending elbows',
-        'Push back up to starting position'
-      ]
-    },
-    {
-      id: '6',
-      name: 'Face Pulls',
-      sets: 3,
-      reps: '12-15',
-      weight: '15',
-      restTime: 60,
-      muscleGroups: ['Rear Delts', 'Rhomboids', 'Middle Traps'],
-      instructions: [
-        'Set cable to upper chest height',
-        'Pull rope towards face with elbows high',
-        'Squeeze shoulder blades together',
-        'Return to starting position with control'
-      ]
-    }
-  ];
+    }));
+  };
+
+  const workout = getTodaysWorkout();
+  
+  // If no workout for today, show message
+  if (workout.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4 flex items-center justify-center">
+        <Card className="p-8 text-center bg-glass/30 backdrop-blur-glass border-glass-border">
+          <Calendar className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <h2 className="text-2xl font-bold mb-2">No Workout Today</h2>
+          <p className="text-muted-foreground mb-4">Today is a rest day. Enjoy your recovery!</p>
+          <Button onClick={onExit} variant="outline">
+            Back to Dashboard
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   const currentExercise = workout[currentExerciseIndex];
   const totalExercises = workout.length;
@@ -280,7 +233,9 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ onComplete, onExit }) =
           </Button>
           
           <div className="text-center">
-            <h1 className="text-2xl font-bold">Upper Body Power</h1>
+            <h1 className="text-2xl font-bold">
+              {workoutPlan?.days.find(day => day.day === new Date().toLocaleDateString('en-US', { weekday: 'long' }))?.name || 'Today\'s Workout'}
+            </h1>
             <p className="text-sm text-muted-foreground">
               {getElapsedTime()} min elapsed
             </p>

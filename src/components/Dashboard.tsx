@@ -23,35 +23,35 @@ import dashboardIcons from '@/assets/dashboard-icons.jpg';
 interface DashboardProps {
   userName: string;
   onStartWorkout: () => void;
+  onModifySchedule: () => void;
+  onViewPlan: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout }) => {
+const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModifySchedule, onViewPlan }) => {
   const { workoutPlan } = useWorkoutPlan();
   
-  // Mock data - in real app this would come from API/database
-  const stats = {
-    workoutsThisWeek: 3,
-    workoutsGoal: 4,
-    currentStreak: 7,
-    totalWorkouts: 24,
-    weeklyVolume: 12500, // kg
-    avgWorkoutTime: 65, // minutes
+  // Get today's workout from the actual plan
+  const getTodaysWorkout = () => {
+    if (!workoutPlan) return null;
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    return workoutPlan.days.find(day => day.day === today);
   };
 
-  const weeklyProgress = (stats.workoutsThisWeek / stats.workoutsGoal) * 100;
+  const todaysWorkout = getTodaysWorkout();
 
-  const todaysWorkout = {
-    name: "Upper Body Power",
-    exercises: 6,
-    estimatedTime: 60,
-    mainLifts: ["Bench Press", "Pull-ups", "Overhead Press"]
+  // Calculate actual stats from workout plan
+  const getWorkoutStats = () => {
+    if (!workoutPlan) return { totalDays: 0, avgDuration: 0, totalExercises: 0 };
+    
+    const totalDays = workoutPlan.days.length;
+    const avgDuration = Math.round(workoutPlan.days.reduce((sum, day) => sum + day.duration, 0) / totalDays);
+    const totalExercises = workoutPlan.days.reduce((sum, day) => sum + day.exercises.length, 0);
+    
+    return { totalDays, avgDuration, totalExercises };
   };
 
-  const recentPRs = [
-    { exercise: "Bench Press", weight: 75, unit: "kg", date: "2 days ago" },
-    { exercise: "Squat", weight: 95, unit: "kg", date: "5 days ago" },
-    { exercise: "Deadlift", weight: 120, unit: "kg", date: "1 week ago" }
-  ];
+  const stats = getWorkoutStats();
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4">
@@ -59,6 +59,16 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout }) => {
         
         {/* Welcome Header */}
         <div className="text-center space-y-4 py-8">
+          <div className="flex justify-end mb-4">
+            <Button 
+              variant="outline" 
+              onClick={onViewPlan}
+              className="flex items-center gap-2"
+            >
+              <Target className="w-4 h-4" />
+              View Plan
+            </Button>
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Welcome back, {userName}!
           </h1>
@@ -68,113 +78,117 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout }) => {
         </div>
 
         {/* Today's Workout Card */}
-        <Card className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20 backdrop-blur-glass shadow-elevated">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Dumbbell className="w-5 h-5 text-primary" />
-                <span className="text-sm font-medium text-primary">Today's Workout</span>
-              </div>
-              <h2 className="text-2xl font-bold">{todaysWorkout.name}</h2>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Target className="w-4 h-4" />
-                  {todaysWorkout.exercises} exercises
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  ~{todaysWorkout.estimatedTime} min
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {todaysWorkout.mainLifts.map((lift, index) => (
-                  <span 
-                    key={index}
-                    className="px-2 py-1 text-xs bg-primary/20 text-primary rounded-lg"
-                  >
-                    {lift}
+        {todaysWorkout ? (
+          <Card className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20 backdrop-blur-glass shadow-elevated">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Dumbbell className="w-5 h-5 text-primary" />
+                  <span className="text-sm font-medium text-primary">Today's Workout</span>
+                </div>
+                <h2 className="text-2xl font-bold">{todaysWorkout.name}</h2>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Target className="w-4 h-4" />
+                    {todaysWorkout.exercises.length} exercises
                   </span>
-                ))}
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    ~{todaysWorkout.duration} min
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {todaysWorkout.exercises.slice(0, 3).map((exercise, index) => (
+                    <span 
+                      key={index}
+                      className="px-2 py-1 text-xs bg-primary/20 text-primary rounded-lg"
+                    >
+                      {exercise.name}
+                    </span>
+                  ))}
+                </div>
               </div>
+              <Button 
+                size="lg" 
+                variant="accent" 
+                onClick={onStartWorkout}
+                className="flex items-center gap-2 min-w-[140px]"
+              >
+                <Play className="w-5 h-5" />
+                Start Workout
+              </Button>
             </div>
-            <Button 
-              size="lg" 
-              variant="accent" 
-              onClick={onStartWorkout}
-              className="flex items-center gap-2 min-w-[140px]"
-            >
-              <Play className="w-5 h-5" />
-              Start Workout
-            </Button>
-          </div>
-        </Card>
+          </Card>
+        ) : (
+          <Card className="p-6 bg-muted/10 border-muted/20 backdrop-blur-glass shadow-elevated text-center">
+            <div className="space-y-4">
+              <Calendar className="w-12 h-12 mx-auto text-muted-foreground" />
+              <h2 className="text-xl font-semibold">Rest Day</h2>
+              <p className="text-muted-foreground">No workout scheduled for today. Enjoy your rest!</p>
+            </div>
+          </Card>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          {/* Weekly Progress */}
+          {/* Training Days */}
           <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass hover:shadow-elevated transition-all duration-300">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-secondary" />
-                  <span className="text-sm font-medium">This Week</span>
+                  <span className="text-sm font-medium">Training Days</span>
                 </div>
                 <span className="text-2xl font-bold text-secondary">
-                  {stats.workoutsThisWeek}/{stats.workoutsGoal}
+                  {stats.totalDays}
                 </span>
               </div>
-              <Progress value={weeklyProgress} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                {stats.workoutsGoal - stats.workoutsThisWeek} workouts remaining
-              </p>
+              <p className="text-xs text-muted-foreground">Days per week</p>
             </div>
           </Card>
 
-          {/* Current Streak */}
+          {/* Average Duration */}
           <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass hover:shadow-elevated transition-all duration-300">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Flame className="w-5 h-5 text-accent" />
-                <span className="text-sm font-medium">Current Streak</span>
+                <Clock className="w-5 h-5 text-accent" />
+                <span className="text-sm font-medium">Avg Duration</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-accent">{stats.currentStreak}</span>
-                <span className="text-sm text-muted-foreground">days</span>
+                <span className="text-3xl font-bold text-accent">{stats.avgDuration}</span>
+                <span className="text-sm text-muted-foreground">min</span>
               </div>
-              <p className="text-xs text-muted-foreground">Keep it going! 🔥</p>
+              <p className="text-xs text-muted-foreground">Per workout</p>
             </div>
           </Card>
 
-          {/* Total Workouts */}
+          {/* Total Exercises */}
           <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass hover:shadow-elevated transition-all duration-300">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-warning" />
-                <span className="text-sm font-medium">Total Workouts</span>
+                <Dumbbell className="w-5 h-5 text-warning" />
+                <span className="text-sm font-medium">Total Exercises</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-warning">{stats.totalWorkouts}</span>
-                <span className="text-sm text-muted-foreground">completed</span>
+                <span className="text-3xl font-bold text-warning">{stats.totalExercises}</span>
+                <span className="text-sm text-muted-foreground">exercises</span>
               </div>
-              <p className="text-xs text-muted-foreground">All time record</p>
+              <p className="text-xs text-muted-foreground">In your program</p>
             </div>
           </Card>
 
-          {/* Weekly Volume */}
+          {/* Program Duration */}
           <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass hover:shadow-elevated transition-all duration-300">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-primary" />
-                <span className="text-sm font-medium">Weekly Volume</span>
+                <Target className="w-5 h-5 text-primary" />
+                <span className="text-sm font-medium">Program</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-primary">
-                  {(stats.weeklyVolume / 1000).toFixed(1)}
-                </span>
-                <span className="text-sm text-muted-foreground">tons</span>
+                <span className="text-2xl font-bold text-primary">{workoutPlan?.duration || 'N/A'}</span>
               </div>
-              <p className="text-xs text-muted-foreground">Weight lifted this week</p>
+              <p className="text-xs text-muted-foreground">Duration</p>
             </div>
           </Card>
         </div>
@@ -182,35 +196,27 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout }) => {
         {/* Recent Progress and PRs */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          {/* Recent PRs */}
+          {/* Program Goals */}
           <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-success" />
-                <h3 className="text-lg font-semibold">Recent Personal Records</h3>
+                <Target className="w-5 h-5 text-success" />
+                <h3 className="text-lg font-semibold">Your Goals</h3>
               </div>
               
               <div className="space-y-3">
-                {recentPRs.map((pr, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-success/10 rounded-lg border border-success/20">
+                {workoutPlan?.goals.map((goal, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20">
                     <div>
-                      <p className="font-medium">{pr.exercise}</p>
-                      <p className="text-sm text-muted-foreground">{pr.date}</p>
+                      <p className="font-medium capitalize">{goal.replace('-', ' ')}</p>
+                      <p className="text-sm text-muted-foreground">Primary focus</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-success">
-                        {pr.weight} {pr.unit}
-                      </p>
-                      <p className="text-xs text-success">New PR! 🎉</p>
+                      <Target className="w-6 h-6 text-primary" />
                     </div>
                   </div>
                 ))}
               </div>
-              
-              <Button variant="outline" className="w-full">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                View Progress Charts
-              </Button>
             </div>
           </Card>
 
@@ -223,22 +229,26 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout }) => {
                 <Button variant="secondary" className="justify-start h-12" onClick={onStartWorkout}>
                   <Play className="w-5 h-5 mr-3" />
                   <div className="text-left">
-                    <p className="font-medium">Start Today's Workout</p>
-                    <p className="text-xs opacity-70">{todaysWorkout.name}</p>
+                    <p className="font-medium">
+                      {todaysWorkout ? "Start Today's Workout" : "No Workout Today"}
+                    </p>
+                    <p className="text-xs opacity-70">
+                      {todaysWorkout ? todaysWorkout.name : "Rest day"}
+                    </p>
+                  </div>
+                </Button>
+                
+                <Button variant="outline" className="justify-start h-12" onClick={onModifySchedule}>
+                  <Edit3 className="w-5 h-5 mr-3" />
+                  <div className="text-left">
+                    <p className="font-medium">Modify Schedule</p>
+                    <p className="text-xs opacity-70">Customize your plan</p>
                   </div>
                 </Button>
                 
                 <CalendarView workoutPlan={workoutPlan} />
                 
                 {workoutPlan && <ProgramDetails workoutPlan={workoutPlan} />}
-                
-                <Button variant="outline" className="justify-start h-12">
-                  <Target className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <p className="font-medium">Update Goals</p>
-                    <p className="text-xs opacity-70">Modify your targets</p>
-                  </div>
-                </Button>
                 
                 <ProgressCharts />
                 
