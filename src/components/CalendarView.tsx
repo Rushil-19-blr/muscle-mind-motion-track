@@ -31,8 +31,23 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
 
   const getWorkoutForDay = (dayName: string) => {
     if (!workoutPlan) return null;
+    console.log('Calendar: Looking for workout on', dayName, 'Available:', workoutPlan.days.map(d => d.day));
+    // Convert three-letter day names to full names for matching
+    const dayNameMap: Record<string, string> = {
+      'sun': 'sunday',
+      'mon': 'monday', 
+      'tue': 'tuesday',
+      'wed': 'wednesday',
+      'thu': 'thursday',
+      'fri': 'friday',
+      'sat': 'saturday'
+    };
+    
+    const fullDayName = dayNameMap[dayName.toLowerCase()] || dayName.toLowerCase();
+    
     return workoutPlan.days.find(day => 
-      day.day.toLowerCase() === dayName.toLowerCase()
+      day.day.toLowerCase() === fullDayName || 
+      day.day.toLowerCase().startsWith(fullDayName.substring(0, 3))
     );
   };
 
