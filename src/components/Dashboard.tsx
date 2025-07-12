@@ -62,14 +62,6 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
           <div className="flex justify-end mb-4">
             <Button 
               variant="outline" 
-              onClick={onModifySchedule}
-              className="flex items-center gap-2 mr-2"
-            >
-              <Edit3 className="w-4 h-4" />
-              Modify Schedule
-            </Button>
-            <Button 
-              variant="outline" 
               onClick={onViewPlan}
               className="flex items-center gap-2"
             >
@@ -146,13 +138,12 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-secondary" />
-                  <span className="text-sm font-medium">Training Days</span>
+                  <span className="text-sm font-medium">Training</span>
                 </div>
-                <span className="text-2xl font-bold text-secondary">
+                <span className="text-4xl font-bold text-secondary">
                   {stats.totalDays}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">Days per week</p>
             </div>
           </Card>
 
@@ -253,39 +244,20 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
                 
                 <ProgressCharts />
                 
+                <Button 
+                  variant="outline" 
+                  onClick={onModifySchedule}
+                  className="justify-start h-12"
+                >
+                  <Edit3 className="w-5 h-5 mr-3" />
+                  <div className="text-left">
+                    <p className="font-medium">Modify Schedule</p>
+                    <p className="text-xs opacity-70">Adjust your workout plan</p>
+                  </div>
+                </Button>
+                
               </div>
             </div>
-          </Card>
-        </div>
-
-        {/* Motivational Quotes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="p-6 bg-gradient-to-r from-accent/10 to-primary/10 border-accent/20 backdrop-blur-glass text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <img 
-                src="/lovable-uploads/7efaaa9c-effc-4d82-a2ac-e0998cbe814d.png" 
-                alt="Dumbbell" 
-                className="w-8 h-8"
-              />
-              <blockquote className="text-lg font-medium italic text-foreground">
-                "The groundwork for all happiness is good health."
-              </blockquote>
-            </div>
-            <p className="text-sm text-muted-foreground">— Leigh Hunt</p>
-          </Card>
-          
-          <Card className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20 backdrop-blur-glass text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <img 
-                src="/lovable-uploads/7efaaa9c-effc-4d82-a2ac-e0998cbe814d.png" 
-                alt="Dumbbell" 
-                className="w-8 h-8"
-              />
-              <blockquote className="text-lg font-medium italic text-foreground">
-                "Success isn't always about greatness. It's about consistency."
-              </blockquote>
-            </div>
-            <p className="text-sm text-muted-foreground">— Dwayne Johnson</p>
           </Card>
         </div>
       </div>

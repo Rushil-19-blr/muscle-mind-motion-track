@@ -49,6 +49,7 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ onComplete, onExit }) =
   const [completedSets, setCompletedSets] = useState<Record<string, Array<{reps: number, weight: number}>>>({});
   const [currentWeight, setCurrentWeight] = useState('');
   const [currentReps, setCurrentReps] = useState('');
+  const [appState, setAppState] = useState<'workout' | 'congratulations'>('workout');
   
   const { toast } = useToast();
 
@@ -210,13 +211,67 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ onComplete, onExit }) =
 
   const completeWorkout = () => {
     const duration = getElapsedTime();
-    toast({
-      title: "Workout Complete! 🎉",
-      description: `Great job! You finished in ${duration} minutes.`,
-    });
-    onComplete();
+    // Show congratulation screen first
+    setAppState('congratulations');
+    setTimeout(() => {
+      onComplete();
+    }, 3000); // Show for 3 seconds then redirect
   };
 
+  // Congratulations screen
+  if (appState === 'congratulations') {
+    const duration = getElapsedTime();
+    const totalSets = workout.reduce((sum, exercise) => sum + exercise.sets, 0);
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4 flex items-center justify-center">
+        <Card className="w-full max-w-2xl p-12 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated text-center animate-scale-in">
+          <div className="space-y-6">
+            <div className="text-6xl animate-bounce">🎉</div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-accent to-accent-glow bg-clip-text text-transparent">
+              Great Job Today!
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              You absolutely crushed it! 💪
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+              <Card className="p-4 bg-accent/10 border-accent/20">
+                <div className="text-2xl font-bold text-accent">{duration}</div>
+                <div className="text-sm text-muted-foreground">Minutes</div>
+              </Card>
+              <Card className="p-4 bg-primary/10 border-primary/20">
+                <div className="text-2xl font-bold text-primary">{workout.length}</div>
+                <div className="text-sm text-muted-foreground">Exercises</div>
+              </Card>
+              <Card className="p-4 bg-secondary/10 border-secondary/20">
+                <div className="text-2xl font-bold text-secondary">{totalSets}</div>
+                <div className="text-sm text-muted-foreground">Total Sets</div>
+              </Card>
+            </div>
+            
+            <div className="mt-8">
+              <p className="text-lg font-medium text-foreground mb-2">
+                "Success isn't always about greatness. It's about consistency."
+              </p>
+              <p className="text-sm text-muted-foreground">— Dwayne Johnson</p>
+            </div>
+            
+            <div className="flex justify-center mt-6">
+              <Button 
+                variant="accent" 
+                onClick={onComplete}
+                className="flex items-center gap-2"
+              >
+                <Trophy className="w-5 h-5" />
+                Back to Dashboard
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
   const startRestTimer = () => {
     setRestTimer(currentExercise.restTime);
     setIsResting(true);

@@ -34,6 +34,40 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
     return workoutPlan.days.find(day => day.day === dayName);
   };
 
+  const getWorkoutType = (workout: any) => {
+    if (!workout) return 'rest';
+    
+    const name = workout.name.toLowerCase();
+    if (name.includes('push') || name.includes('chest') || name.includes('shoulder')) return 'push';
+    if (name.includes('pull') || name.includes('back') || name.includes('lat')) return 'pull';
+    if (name.includes('leg') || name.includes('squat') || name.includes('lower')) return 'legs';
+    if (name.includes('cardio') || name.includes('running') || name.includes('bike')) return 'cardio';
+    if (name.includes('full') || name.includes('total')) return 'fullbody';
+    return 'fullbody';
+  };
+
+  const getWorkoutTypeColor = (type: string) => {
+    switch (type) {
+      case 'push': return 'bg-red-500';
+      case 'pull': return 'bg-blue-500';
+      case 'legs': return 'bg-green-500';
+      case 'cardio': return 'bg-orange-500';
+      case 'fullbody': return 'bg-purple-500';
+      default: return 'bg-gray-400';
+    }
+  };
+
+  const getWorkoutTypeLabel = (type: string) => {
+    switch (type) {
+      case 'push': return 'Push';
+      case 'pull': return 'Pull';
+      case 'legs': return 'Legs';
+      case 'cardio': return 'Cardio';
+      case 'fullbody': return 'Full Body';
+      default: return 'Rest';
+    }
+  };
+
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
@@ -51,6 +85,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
       const dayName = daysOfWeek[date.getDay()];
       const workout = getWorkoutForDay(dayName);
+      const workoutType = getWorkoutType(workout);
+      const typeColor = getWorkoutTypeColor(workoutType);
+      const typeLabel = getWorkoutTypeLabel(workoutType);
       const isToday = date.toDateString() === new Date().toDateString();
 
       days.push(
@@ -64,24 +101,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
             <span className={`text-sm font-medium ${isToday ? 'text-primary' : ''}`}>
               {day}
             </span>
-            {workout && (
-              <div className="flex-1 flex flex-col justify-center space-y-1">
-                <div className="grid grid-cols-2 gap-1">
-                  {workout.exercises.slice(0, 4).map((exercise, idx) => (
-                    <div 
-                      key={idx}
-                      className="text-[8px] px-1 py-0.5 bg-accent/20 text-accent rounded border border-accent/30 truncate"
-                    >
-                      {exercise.name.split(' ')[0]}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between text-[9px] text-muted-foreground">
-                  <span>{workout.exercises.length} ex</span>
-                  <span>{workout.duration}min</span>
-                </div>
+            <div className="flex-1 flex flex-col justify-center items-center">
+              <div className={`w-12 h-6 rounded-md ${typeColor} flex items-center justify-center mb-1`}>
+                <span className="text-white text-[10px] font-medium">{typeLabel}</span>
               </div>
-            )}
+              {workout && (
+                <div className="text-[8px] text-muted-foreground text-center">
+                  <div>{workout.exercises.length} exercises</div>
+                  <div>{workout.duration}min</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       );

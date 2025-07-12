@@ -157,7 +157,6 @@ const Index = () => {
           onModifySchedule={handleModifySchedule}
           onViewPlan={handleViewPlan}
         />
-        <QuoteTicker />
       </>
     );
   }

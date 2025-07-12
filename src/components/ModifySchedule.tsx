@@ -41,6 +41,9 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
   const [modificationMode, setModificationMode] = useState<'select' | 'rex' | 'manual'>('select');
   const [rexModifications, setRexModifications] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
+  const [pendingModification, setPendingModification] = useState<WorkoutPlan | null>(null);
+  const [originalPlan, setOriginalPlan] = useState<WorkoutPlan | null>(workoutPlan);
   const [editingExercise, setEditingExercise] = useState<{
     dayIndex: number;
     exerciseIndex: number;
@@ -63,12 +66,8 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
     setIsLoading(true);
     try {
       const modifiedPlan = await googleAIService.adaptWorkoutPlan(workoutPlan, rexModifications);
-      onPlanUpdated(modifiedPlan);
-      setRexModifications('');
-      toast({
-        title: "Plan Modified by Rex! 🤖",
-        description: "Your workout plan has been updated based on your feedback.",
-      });
+      setPendingModification(modifiedPlan);
+      setShowApprovalDialog(true);
     } catch (error) {
       toast({
         title: "Error modifying plan",
@@ -80,6 +79,43 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
     }
   };
 
+  const handleApproveModification = () => {
+    if (pendingModification) {
+      onPlanUpdated(pendingModification);
+      setShowApprovalDialog(false);
+      setPendingModification(null);
+      setRexModifications('');
+      toast({
+        title: "Plan Updated! 🎉",
+        description: "Your workout plan has been successfully modified.",
+      });
+    }
+  };
+
+  const handleRejectModification = () => {
+    setShowApprovalDialog(false);
+    setPendingModification(null);
+    toast({
+      title: "Changes Rejected",
+      description: "Your original workout plan remains unchanged.",
+    });
+  };
+
+  const getChangeType = (dayIndex: number, exerciseIndex: number) => {
+    if (!originalPlan || !pendingModification) return null;
+    
+    const originalExercise = originalPlan.days[dayIndex]?.exercises[exerciseIndex];
+    const newExercise = pendingModification.days[dayIndex]?.exercises[exerciseIndex];
+    
+    if (!originalExercise && newExercise) return 'added';
+    if (originalExercise && !newExercise) return 'removed';
+    if (originalExercise && newExercise && 
+        (originalExercise.name !== newExercise.name || 
+         originalExercise.sets !== newExercise.sets ||
+         originalExercise.reps !== newExercise.reps)) return 'modified';
+    
+    return null;
+  };
   const handleExerciseEdit = (dayIndex: number, exerciseIndex: number) => {
     if (!localPlan) return;
     
@@ -232,6 +268,14 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
                       Let Rex Modify
                     </>
                   )}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setModificationMode('manual')}
+                  className="flex items-center gap-2"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  Manual Edit Instead
                 </Button>
               </div>
             </div>
@@ -420,6 +464,91 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Plan Modification Approval Dialog */}
+        {showApprovalDialog && pendingModification && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+            <Card className="w-full max-w-4xl max-h-[80vh] bg-glass/95 backdrop-blur-glass border-glass-border shadow-elevated overflow-hidden">
+              <div className="p-6 border-b border-glass-border">
+                <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  Plan Modification Preview
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Review the changes Rex made to your workout plan
+                </p>
+              </div>
+              
+              <ScrollArea className="max-h-[50vh] p-6">
+                <div className="space-y-4">
+                  {pendingModification.days.map((day, dayIndex) => (
+                    <Card key={dayIndex} className="p-4 bg-glass/30 rounded-lg border border-primary/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge variant="outline">{day.day}</Badge>
+                        <h4 className="font-semibold">{day.name}</h4>
+                        <span className="text-sm text-muted-foreground">({day.duration} min)</span>
+                      </div>
+                      <div className="space-y-2">
+                        {day.exercises.map((exercise, exerciseIndex) => {
+                          const changeType = getChangeType(dayIndex, exerciseIndex);
+                          const changeColors = {
+                            added: 'bg-green-100 border-green-300 dark:bg-green-900/30 dark:border-green-600',
+                            modified: 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-600',
+                            removed: 'bg-red-100 border-red-300 dark:bg-red-900/30 dark:border-red-600'
+                          };
+                          
+                          return (
+                            <div 
+                              key={exerciseIndex} 
+                              className={`text-sm p-3 rounded border ${
+                                changeType ? changeColors[changeType] : 'bg-glass/20 border-glass-border'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium">{exercise.name}</span>
+                                {changeType && (
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`text-xs ${
+                                      changeType === 'added' ? 'text-green-700 border-green-300' :
+                                      changeType === 'modified' ? 'text-yellow-700 border-yellow-300' :
+                                      'text-red-700 border-red-300'
+                                    }`}
+                                  >
+                                    {changeType.charAt(0).toUpperCase() + changeType.slice(1)}
+                                  </Badge>
+                                )}
+                              </div>
+                              <span className="text-muted-foreground">
+                                {exercise.sets} sets × {exercise.reps} reps
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+
+              <div className="p-6 border-t border-glass-border flex gap-3">
+                <Button 
+                  onClick={handleRejectModification}
+                  variant="outline" 
+                  className="flex-1"
+                >
+                  Reject Changes
+                </Button>
+                <Button 
+                  onClick={handleApproveModification}
+                  variant="accent" 
+                  className="flex-1"
+                >
+                  Approve & Apply Changes
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
