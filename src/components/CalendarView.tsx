@@ -31,7 +31,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
 
   const getWorkoutForDay = (dayName: string) => {
     if (!workoutPlan) return null;
-    return workoutPlan.days.find(day => day.day === dayName);
+    return workoutPlan.days.find(day => 
+      day.day.toLowerCase() === dayName.toLowerCase()
+    );
   };
 
   const getWorkoutType = (workout: any) => {
@@ -156,61 +158,61 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
               </Card>
             ) : (
               <>
-            {/* Calendar Header */}
-            <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border">
-              <div className="flex items-center justify-between mb-4">
-                <Button variant="ghost" size="sm" onClick={previousMonth}>
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <h3 className="text-lg font-semibold">
-                  {months[currentDate.getMonth()]} {currentDate.getFullYear()}
-                </h3>
-                <Button variant="ghost" size="sm" onClick={nextMonth}>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {/* Days of week header */}
-              <div className="grid grid-cols-7 mb-2">
-                {daysOfWeek.map(day => (
-                  <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              {/* Calendar grid */}
-              <div className="grid grid-cols-7 gap-1">
-                {renderCalendar()}
-              </div>
-            </Card>
-
-            {/* Weekly Schedule Overview */}
-              <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border">
-                <h4 className="font-semibold mb-3">Weekly Training Schedule</h4>
-                <div className="space-y-2">
-                  {workoutPlan.days.map((day, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-glass/20 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Badge variant="outline" className="min-w-[60px] justify-center">
-                          {day.day}
-                        </Badge>
-                        <div>
-                          <p className="font-medium">{day.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {day.exercises.length} exercises
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        {day.duration} min
-                      </div>
+                  {/* Calendar Header */}
+                  <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border">
+                    <div className="flex items-center justify-between mb-4">
+                      <Button variant="ghost" size="sm" onClick={previousMonth}>
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+                      <h3 className="text-lg font-semibold">
+                        {months[currentDate.getMonth()]} {currentDate.getFullYear()}
+                      </h3>
+                      <Button variant="ghost" size="sm" onClick={nextMonth}>
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
                     </div>
-                  ))}
-                </div>
-              </Card>
-              </>
+
+                    {/* Days of week header */}
+                    <div className="grid grid-cols-7 mb-2">
+                      {daysOfWeek.map(day => (
+                        <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Calendar grid */}
+                    <div className="grid grid-cols-7 gap-1">
+                      {renderCalendar()}
+                    </div>
+                  </Card>
+
+                  {/* Weekly Schedule Overview */}
+                  <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border">
+                    <h4 className="font-semibold mb-3">Weekly Training Schedule</h4>
+                    <div className="space-y-2">
+                      {workoutPlan.days.map((day, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-glass/20 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <Badge variant="outline" className="min-w-[60px] justify-center">
+                              {day.day}
+                            </Badge>
+                            <div>
+                              <p className="font-medium">{day.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {day.exercises.length} exercises
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4" />
+                            {day.duration} min
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </>
             )}
           </div>
         </ScrollArea>

@@ -34,7 +34,9 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
   const getTodaysWorkout = () => {
     if (!workoutPlan) return null;
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    return workoutPlan.days.find(day => day.day === today);
+    return workoutPlan.days.find(day => 
+      day.day.toLowerCase() === today.toLowerCase()
+    );
   };
 
   const todaysWorkout = getTodaysWorkout();

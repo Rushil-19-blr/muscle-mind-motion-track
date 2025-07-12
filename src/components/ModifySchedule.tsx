@@ -68,7 +68,9 @@ export const ModifySchedule: React.FC<ModifyScheduleProps> = ({
       const modifiedPlan = await googleAIService.adaptWorkoutPlan(workoutPlan, rexModifications);
       setPendingModification(modifiedPlan);
       setShowApprovalDialog(true);
+      setRexModifications('');
     } catch (error) {
+      console.error('Error modifying plan:', error);
       toast({
         title: "Error modifying plan",
         description: "Please try again or use manual editing.",

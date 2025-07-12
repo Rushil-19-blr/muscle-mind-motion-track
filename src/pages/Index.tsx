@@ -12,6 +12,7 @@ import { QuoteTicker } from '@/components/QuoteTicker';
 import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
 import { ModifySchedule } from '@/components/ModifySchedule';
 import { ViewPlan } from '@/components/ViewPlan';
+import { SignInDialog } from '@/components/SignInDialog';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
@@ -50,11 +51,17 @@ const Index = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [pendingPlan, setPendingPlan] = useState<WorkoutPlan | null>(null);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [showSignInDialog, setShowSignInDialog] = useState(false);
   const { setWorkoutPlan, workoutPlan } = useWorkoutPlan();
   const { toast } = useToast();
 
   const handleOnboardingComplete = async (data: UserData) => {
     setUserData(data);
+    setShowSignInDialog(true);
+  };
+
+  const handleSignInComplete = async () => {
+    setShowSignInDialog(false);
     setIsGeneratingPlan(true);
     
     try {
@@ -63,7 +70,7 @@ const Index = () => {
         description: "Our AI is creating a personalized workout plan for you...",
       });
       
-      const workoutPlan = await googleAIService.generateWorkoutPlan(data);
+      const workoutPlan = await googleAIService.generateWorkoutPlan(userData!);
       setPendingPlan(workoutPlan);
       setAppState('schedule-approval');
     } catch (error) {
@@ -122,9 +129,16 @@ const Index = () => {
           {isGeneratingPlan ? (
             <LoadingAnimation message="Our AI is analyzing your profile and creating a personalized workout plan..." />
           ) : (
-            <Card className="w-full max-w-4xl p-8 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
-              <OnboardingForm onComplete={handleOnboardingComplete} />
-            </Card>
+            <>
+              <Card className="w-full max-w-4xl p-8 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
+                <OnboardingForm onComplete={handleOnboardingComplete} />
+              </Card>
+              <SignInDialog 
+                isOpen={showSignInDialog}
+                onClose={() => setShowSignInDialog(false)}
+                onSignInComplete={handleSignInComplete}
+              />
+            </>
           )}
         </div>
       </>

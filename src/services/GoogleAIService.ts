@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const API_KEY = 'AIzaSyDRoqdVubMzyZeK0dB0kX0wBK5vAAaGiXU';
+const API_KEY = 'AIzaSyC5WIxFG41tG29wzzfGA6Ga7hJLvNj1KJk';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 export interface WorkoutPlan {
