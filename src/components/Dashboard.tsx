@@ -34,7 +34,6 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
   const getTodaysWorkout = () => {
     if (!workoutPlan) return null;
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    console.log('Today is:', today, 'Available days:', workoutPlan.days.map(d => d.day));
     return workoutPlan.days.find(day => 
       day.day.toLowerCase() === today.toLowerCase()
     );
@@ -135,43 +134,18 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          {/* User Consistency */}
+          {/* Training Days */}
           <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass hover:shadow-elevated transition-all duration-300">
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-success" />
-                <span className="text-sm font-medium">Consistency</span>
-              </div>
-              <div className="flex items-center justify-center">
-                <div className="relative w-16 h-16">
-                  <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
-                    <path
-                      d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeDasharray="0, 100"
-                      className="text-muted/20"
-                    />
-                    <path
-                      d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeDasharray="87, 100"
-                      className="text-success"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-bold text-success">87%</span>
-                  </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-secondary" />
+                  <span className="text-sm font-medium">Training</span>
                 </div>
+                <span className="text-4xl font-bold text-secondary">
+                  {stats.totalDays}
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground text-center">Workout completion rate</p>
             </div>
           </Card>
 
@@ -220,8 +194,34 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
           </Card>
         </div>
 
-        {/* Quick Actions */}
+        {/* Recent Progress and PRs */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          {/* Program Goals */}
+          <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-success" />
+                <h3 className="text-lg font-semibold">Your Goals</h3>
+              </div>
+              
+              <div className="space-y-3">
+                {workoutPlan?.goals.map((goal, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20">
+                    <div>
+                      <p className="font-medium capitalize">{goal.replace('-', ' ')}</p>
+                      <p className="text-sm text-muted-foreground">Primary focus</p>
+                    </div>
+                    <div className="text-right">
+                      <Target className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          {/* Quick Actions */}
           <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Quick Actions</h3>
@@ -239,41 +239,29 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
                   </div>
                 </Button>
                 
+                
                 <CalendarView workoutPlan={workoutPlan} />
                 
                 {workoutPlan && <ProgramDetails workoutPlan={workoutPlan} />}
                 
-                <div className="flex justify-center">
-                  <ProgressCharts />
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Empty space for better layout */}
-          <div></div>
-        </div>
-
-        {/* Your Goals - moved to bottom */}
-        {workoutPlan?.goals && (
-          <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-success" />
-                <h3 className="text-base font-semibold">Your Goals</h3>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {workoutPlan.goals.map((goal, index) => (
-                  <div key={index} className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg border border-primary/20">
-                    <Target className="w-4 h-4 text-primary" />
-                    <p className="text-sm font-medium capitalize">{goal.replace('-', ' ')}</p>
+                <ProgressCharts />
+                
+                <Button 
+                  variant="outline" 
+                  onClick={onModifySchedule}
+                  className="justify-start h-12"
+                >
+                  <Edit3 className="w-5 h-5 mr-3" />
+                  <div className="text-left">
+                    <p className="font-medium">Modify Schedule</p>
+                    <p className="text-xs opacity-70">Adjust your workout plan</p>
                   </div>
-                ))}
+                </Button>
+                
               </div>
             </div>
           </Card>
-        )}
+        </div>
       </div>
     </div>
   );
