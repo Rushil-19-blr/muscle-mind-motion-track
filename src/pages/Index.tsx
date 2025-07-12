@@ -9,6 +9,7 @@ import { ScheduleApproval } from '@/components/ScheduleApproval';
 import { LoadingAnimation } from '@/components/LoadingAnimation';
 import { RexChatbot } from '@/components/RexChatbot';
 import { QuoteTicker } from '@/components/QuoteTicker';
+import { Sidebar } from '@/components/Sidebar';
 import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
 import { ModifySchedule } from '@/components/ModifySchedule';
 import { ViewPlan } from '@/components/ViewPlan';
@@ -165,12 +166,20 @@ const Index = () => {
       <>
         <DarkModeToggle />
         {userData && <RexChatbot userData={userData} workoutPlan={workoutPlan} onPlanModified={setWorkoutPlan} />}
+        <Sidebar 
+          onStartWorkout={handleStartWorkout}
+          onModifySchedule={handleModifySchedule}
+          onViewPlan={handleViewPlan}
+          onViewProgress={() => {}}
+          onViewCalendar={() => {}}
+        />
         <Dashboard 
           userName={userData?.name || 'User'} 
           onStartWorkout={handleStartWorkout}
           onModifySchedule={handleModifySchedule}
           onViewPlan={handleViewPlan}
         />
+        <QuoteTicker />
       </>
     );
   }
