@@ -15,8 +15,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Zap,
-  Trophy
+  Zap
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';

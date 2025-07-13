@@ -9,8 +9,7 @@ import {
   User, 
   Settings,
   LogOut,
-  BarChart3,
-  Trophy
+  BarChart3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

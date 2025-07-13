@@ -8,7 +8,7 @@ import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { ScheduleApproval } from '@/components/ScheduleApproval';
 import { LoadingAnimation } from '@/components/LoadingAnimation';
 import { RexChatbot } from '@/components/RexChatbot';
-import { ProgressCharts } from '@/components/ProgressCharts';
+import { QuoteTicker } from '@/components/QuoteTicker';
 import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
 import { ModifySchedule } from '@/components/ModifySchedule';
 import { ViewPlan } from '@/components/ViewPlan';
@@ -17,11 +17,11 @@ import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Sidebar } from '@/components/Sidebar';
 import { AccountPage } from '@/components/AccountPage';
 import { UpdateMetrics } from '@/components/UpdateMetrics';
-import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap, Trophy, ArrowLeft, LogIn } from 'lucide-react';
+import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
 import { useToast } from '@/hooks/use-toast';
 
-type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval' | 'modify-schedule' | 'view-plan' | 'account' | 'update-metrics' | 'progress-charts' | 'view-prs';
+type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval' | 'modify-schedule' | 'view-plan' | 'account' | 'update-metrics';
 
 export interface UserData {
   name: string;
@@ -155,19 +155,6 @@ const Index = () => {
     }
   };
 
-  const handleSignInClick = () => {
-    setShowSignInDialog(true);
-  };
-
-  const handleSignInCompleteFromLanding = async () => {
-    setShowSignInDialog(false);
-    setAppState('dashboard');
-    toast({
-      title: "Welcome Back!",
-      description: "You have successfully signed in.",
-    });
-  };
-
   const handleLogout = () => {
     setAppState('landing');
     setUserData(null);
@@ -231,7 +218,12 @@ const Index = () => {
         />
         <DarkModeToggle />
         {userData && <RexChatbot userData={userData} workoutPlan={workoutPlan} onPlanModified={setWorkoutPlan} />}
-        <Dashboard />
+        <Dashboard 
+          userName={userData?.name || 'User'} 
+          onStartWorkout={handleStartWorkout}
+          onModifySchedule={handleModifySchedule}
+          onViewPlan={handleViewPlan}
+        />
       </>
     );
   }
@@ -397,18 +389,7 @@ const Index = () => {
   // Landing Page
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary">
-      {/* Top Navigation */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
-        <Button 
-          variant="outline" 
-          onClick={handleSignInClick}
-          className="flex items-center gap-2"
-        >
-          <LogIn className="w-4 h-4" />
-          Sign In
-        </Button>
-        <DarkModeToggle />
-      </div>
+      <DarkModeToggle />
       
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
@@ -548,13 +529,6 @@ const Index = () => {
           </Card>
         </div>
       </section>
-
-      {/* Sign In Dialog */}
-      <SignInDialog 
-        isOpen={showSignInDialog}
-        onClose={() => setShowSignInDialog(false)}
-        onSignInComplete={handleSignInCompleteFromLanding}
-      />
     </div>
   );
 };
