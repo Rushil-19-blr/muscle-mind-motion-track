@@ -14,11 +14,14 @@ import { ModifySchedule } from '@/components/ModifySchedule';
 import { ViewPlan } from '@/components/ViewPlan';
 import { SignInDialog } from '@/components/SignInDialog';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
+import { Sidebar } from '@/components/Sidebar';
+import { AccountPage } from '@/components/AccountPage';
+import { UpdateMetrics } from '@/components/UpdateMetrics';
 import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
 import { useToast } from '@/hooks/use-toast';
 
-type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval' | 'modify-schedule' | 'view-plan';
+type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval' | 'modify-schedule' | 'view-plan' | 'account' | 'update-metrics';
 
 export interface UserData {
   name: string;
@@ -121,6 +124,45 @@ const Index = () => {
     setAppState('view-plan');
   };
 
+  const handleNavigate = (page: string) => {
+    switch (page) {
+      case 'dashboard':
+        setAppState('dashboard');
+        break;
+      case 'workout':
+        handleStartWorkout();
+        break;
+      case 'modify-schedule':
+        handleModifySchedule();
+        break;
+      case 'view-plan':
+        handleViewPlan();
+        break;
+      case 'account':
+        setAppState('account');
+        break;
+      case 'update-metrics':
+        setAppState('update-metrics');
+        break;
+      default:
+        setAppState('dashboard');
+    }
+  };
+
+  const handleLogout = () => {
+    setAppState('landing');
+    setUserData(null);
+    setWorkoutPlan(null);
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
+    });
+  };
+
+  const handleUpdateMetrics = (updatedData: UserData) => {
+    setUserData(updatedData);
+  };
+
   if (appState === 'onboarding') {
     return (
       <>
@@ -163,6 +205,11 @@ const Index = () => {
   if (appState === 'dashboard') {
     return (
       <>
+        <Sidebar 
+          onNavigate={handleNavigate} 
+          userName={userData?.name || 'User'} 
+          currentPage="dashboard"
+        />
         <DarkModeToggle />
         {userData && <RexChatbot userData={userData} workoutPlan={workoutPlan} onPlanModified={setWorkoutPlan} />}
         <Dashboard 
@@ -178,6 +225,11 @@ const Index = () => {
   if (appState === 'modify-schedule') {
     return (
       <>
+        <Sidebar 
+          onNavigate={handleNavigate} 
+          userName={userData?.name || 'User'} 
+          currentPage="modify"
+        />
         <DarkModeToggle />
         <RexChatbot userData={userData} workoutPlan={workoutPlan} />
         <ModifySchedule 
@@ -196,6 +248,11 @@ const Index = () => {
   if (appState === 'view-plan') {
     return (
       <>
+        <Sidebar 
+          onNavigate={handleNavigate} 
+          userName={userData?.name || 'User'} 
+          currentPage="view-plan"
+        />
         <DarkModeToggle />
         <ViewPlan 
           workoutPlan={workoutPlan}
@@ -208,11 +265,53 @@ const Index = () => {
   if (appState === 'workout') {
     return (
       <>
+        <Sidebar 
+          onNavigate={handleNavigate} 
+          userName={userData?.name || 'User'} 
+          currentPage="workout"
+        />
         <DarkModeToggle />
         <RexChatbot userData={userData} workoutPlan={workoutPlan} isWorkoutMode={true} />
         <WorkoutSession
           onComplete={handleWorkoutComplete}
           onExit={handleWorkoutExit}
+        />
+      </>
+    );
+  }
+
+  if (appState === 'account') {
+    return (
+      <>
+        <Sidebar 
+          onNavigate={handleNavigate} 
+          userName={userData?.name || 'User'} 
+          currentPage="account"
+        />
+        <DarkModeToggle />
+        <AccountPage
+          userName={userData?.name || 'User'}
+          userEmail={userData?.name ? `${userData.name.toLowerCase().replace(' ', '.')}@email.com` : 'user@email.com'}
+          onBack={() => setAppState('dashboard')}
+          onLogout={handleLogout}
+        />
+      </>
+    );
+  }
+
+  if (appState === 'update-metrics') {
+    return (
+      <>
+        <Sidebar 
+          onNavigate={handleNavigate} 
+          userName={userData?.name || 'User'} 
+          currentPage="update-metrics"
+        />
+        <DarkModeToggle />
+        <UpdateMetrics
+          onBack={() => setAppState('dashboard')}
+          userData={userData}
+          onUpdate={handleUpdateMetrics}
         />
       </>
     );
