@@ -17,7 +17,7 @@ import {
 import { CalendarView } from '@/components/CalendarView';
 import { ProgressCharts } from '@/components/ProgressCharts';
 import { ProgramDetails } from '@/components/ProgramDetails';
-import { Edit3, TrendingUp } from 'lucide-react';
+import { Edit3 } from 'lucide-react';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 
 interface DashboardProps {
