@@ -8,7 +8,7 @@ import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { ScheduleApproval } from '@/components/ScheduleApproval';
 import { LoadingAnimation } from '@/components/LoadingAnimation';
 import { RexChatbot } from '@/components/RexChatbot';
-import { QuoteTicker } from '@/components/QuoteTicker';
+import { ProgressCharts } from '@/components/ProgressCharts';
 import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
 import { ModifySchedule } from '@/components/ModifySchedule';
 import { ViewPlan } from '@/components/ViewPlan';
@@ -17,11 +17,11 @@ import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Sidebar } from '@/components/Sidebar';
 import { AccountPage } from '@/components/AccountPage';
 import { UpdateMetrics } from '@/components/UpdateMetrics';
-import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
+import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap, Trophy, ArrowLeft } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
 import { useToast } from '@/hooks/use-toast';
 
-type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval' | 'modify-schedule' | 'view-plan' | 'account' | 'update-metrics';
+type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval' | 'modify-schedule' | 'view-plan' | 'account' | 'update-metrics' | 'progress-charts' | 'view-prs';
 
 export interface UserData {
   name: string;
@@ -218,12 +218,7 @@ const Index = () => {
         />
         <DarkModeToggle />
         {userData && <RexChatbot userData={userData} workoutPlan={workoutPlan} onPlanModified={setWorkoutPlan} />}
-        <Dashboard 
-          userName={userData?.name || 'User'} 
-          onStartWorkout={handleStartWorkout}
-          onModifySchedule={handleModifySchedule}
-          onViewPlan={handleViewPlan}
-        />
+        <Dashboard />
       </>
     );
   }
