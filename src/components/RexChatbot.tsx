@@ -150,9 +150,36 @@ export const RexChatbot: React.FC<RexChatbotProps> = ({
     `;
 
     try {
-      const result = await googleAIService.model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      // Use the Grok API directly for chat responses
+      const response = await fetch('https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer xai-tCa34QtilJe194jK4KLGW6JxrOVSqN3E90WyUtFmOEc1eccdCeqoYMTR8MMJ8OgiujTC8Jj5f0YyYEWd`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'grok-beta',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are Rex, a friendly and knowledgeable fitness AI assistant.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
     } catch (error) {
       console.error('Error generating Rex response:', error);
       return "I'm having some technical difficulties right now, but I'm here to help! Could you try asking your question again?";

@@ -31,35 +31,24 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
 
   const getWorkoutForDay = (dayName: string) => {
     if (!workoutPlan) return null;
-    
-    // Handle different day name formats
-    const dayMappings: { [key: string]: string[] } = {
-      'Sunday': ['sun', 'sunday'],
-      'Monday': ['mon', 'monday'],
-      'Tuesday': ['tue', 'tuesday', 'tues'],
-      'Wednesday': ['wed', 'wednesday'],
-      'Thursday': ['thu', 'thursday', 'thurs'],
-      'Friday': ['fri', 'friday'],
-      'Saturday': ['sat', 'saturday']
+    console.log('Calendar: Looking for workout on', dayName, 'Available:', workoutPlan.days.map(d => d.day));
+    // Convert three-letter day names to full names for matching
+    const dayNameMap: Record<string, string> = {
+      'sun': 'sunday',
+      'mon': 'monday', 
+      'tue': 'tuesday',
+      'wed': 'wednesday',
+      'thu': 'thursday',
+      'fri': 'friday',
+      'sat': 'saturday'
     };
     
-    const normalizedDay = dayName.toLowerCase();
+    const fullDayName = dayNameMap[dayName.toLowerCase()] || dayName.toLowerCase();
     
-    return workoutPlan.days.find(day => {
-      const planDay = day.day.toLowerCase();
-      
-      // Direct match
-      if (planDay === normalizedDay) return true;
-      
-      // Check mappings
-      for (const [fullDay, variants] of Object.entries(dayMappings)) {
-        if (variants.includes(normalizedDay) && variants.includes(planDay)) {
-          return true;
-        }
-      }
-      
-      return false;
-    });
+    return workoutPlan.days.find(day => 
+      day.day.toLowerCase() === fullDayName || 
+      day.day.toLowerCase().startsWith(fullDayName.substring(0, 3))
+    );
   };
 
   const getWorkoutType = (workout: any) => {

@@ -20,8 +20,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/account" element={<Account onBack={() => window.history.back()} />} />
-            <Route path="/update-metrics" element={<UpdateMetrics onBack={() => window.history.back()} />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/update-metrics" element={<UpdateMetrics />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

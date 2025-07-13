@@ -50,7 +50,7 @@ export const ProgressCharts: React.FC = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-auto">
+        <Button variant="outline" className="w-full max-w-xs mx-auto">
           <BarChart3 className="w-4 h-4 mr-2" />
           View Progress Charts
         </Button>

@@ -5,85 +5,79 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save, CheckCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
-interface UpdateMetricsProps {
-  onBack: () => void;
-  userData?: any;
-}
-
-export const UpdateMetrics: React.FC<UpdateMetricsProps> = ({ onBack, userData }) => {
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export const UpdateMetrics: React.FC = () => {
+  const navigate = useNavigate();
+  const [isUpdating, setIsUpdating] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const [formData, setFormData] = useState({
-    height: userData?.height || '',
-    weight: userData?.weight || '',
-    bodyFat: userData?.bodyFat || '',
-    muscleMass: userData?.muscleMass || '',
-    dietStyle: userData?.dietStyle || '',
-    dailyCalories: userData?.dailyCalories || '',
-    proteinIntake: userData?.proteinIntake || '',
-    benchPress: userData?.benchPress || '',
-    squat: userData?.squat || '',
-    deadlift: userData?.deadlift || '',
-    overheadPress: userData?.overheadPress || '',
-    primaryGoal: userData?.primaryGoal || '',
-    secondaryGoal: userData?.secondaryGoal || '',
+  // Initialize with existing data from localStorage or defaults
+  const [formData, setFormData] = useState(() => {
+    const savedData = localStorage.getItem('userOnboardingData');
+    return savedData ? JSON.parse(savedData) : {
+      weight: '',
+      height: '',
+      bodyFat: '',
+      muscleMass: '',
+      benchPress: '',
+      squat: '',
+      deadlift: '',
+      overheadPress: '',
+      pullUps: '',
+      rows: '',
+      primaryGoal: '',
+      secondaryGoal: '',
+      weeklyAvailability: '',
+      dailyCalories: '',
+      proteinIntake: ''
+    };
   });
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleUpdate = async () => {
+    setIsUpdating(true);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Save to localStorage
+    const existingData = JSON.parse(localStorage.getItem('userOnboardingData') || '{}');
+    const updatedData = { ...existingData, ...formData };
+    localStorage.setItem('userOnboardingData', JSON.stringify(updatedData));
+    
+    setIsUpdating(false);
+    setShowSuccess(true);
+    
+    toast.success("Metrics updated successfully!");
+    
+    // Auto-redirect after 3 seconds
+    setTimeout(() => {
+      navigate('/');
+    }, 3000);
+  };
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setShowSuccess(true);
-      toast({
-        title: "✅ Metrics Updated Successfully!",
-        description: "Your metrics have been updated and saved.",
-      });
-
-      setTimeout(() => {
-        onBack();
-      }, 2000);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update metrics. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleBack = () => {
+    navigate('/');
   };
 
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4 flex items-center justify-center">
-        <Card className="w-full max-w-md p-8 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated text-center">
-          <div className="space-y-6">
-            <div className="w-20 h-20 bg-gradient-to-r from-success to-success-light rounded-full flex items-center justify-center mx-auto">
-              <CheckCircle className="w-10 h-10 text-success-foreground" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-success">Success!</h2>
-              <p className="text-muted-foreground">Your metrics have been updated successfully.</p>
-            </div>
-            <div className="w-full bg-success/20 rounded-full h-2">
-              <div className="bg-success h-2 rounded-full animate-pulse" style={{ width: '100%' }}></div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary flex items-center justify-center p-4">
+        <Card className="p-8 max-w-md mx-auto text-center bg-gradient-to-r from-green-500/10 to-primary/10 border-green-500/20">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Metrics Updated!</h2>
+          <p className="text-muted-foreground mb-6">
+            Your personal metrics have been successfully updated. 
+            You'll be redirected to the dashboard shortly.
+          </p>
+          <Button onClick={() => navigate('/')} className="w-full">
+            Back to Dashboard
+          </Button>
         </Card>
       </div>
     );
@@ -91,233 +85,213 @@ export const UpdateMetrics: React.FC<UpdateMetricsProps> = ({ onBack, userData }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6">
         
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="sm" onClick={onBack} className="flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
+        <div className="flex items-center gap-4 mb-8">
+          <Button variant="ghost" onClick={handleBack} className="p-2">
+            <ArrowLeft className="w-5 h-5" />
           </Button>
-        </div>
-
-        <div className="text-center space-y-4 py-8">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Update Metrics
           </h1>
-          <p className="text-lg text-muted-foreground">
-            Keep your profile up-to-date for the best workout recommendations
-          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Physical Metrics */}
-          <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
-            <h3 className="text-xl font-semibold mb-4">Physical Metrics</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="height">Height (cm)</Label>
-                <Input
-                  id="height"
-                  type="number"
-                  placeholder="175"
-                  value={formData.height}
-                  onChange={(e) => handleInputChange('height', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="weight">Weight (kg)</Label>
-                <Input
-                  id="weight"
-                  type="number"
-                  placeholder="70"
-                  value={formData.weight}
-                  onChange={(e) => handleInputChange('weight', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="bodyFat">Body Fat (%)</Label>
-                <Input
-                  id="bodyFat"
-                  type="number"
-                  placeholder="15"
-                  value={formData.bodyFat}
-                  onChange={(e) => handleInputChange('bodyFat', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="muscleMass">Muscle Mass (%)</Label>
-                <Input
-                  id="muscleMass"
-                  type="number"
-                  placeholder="45"
-                  value={formData.muscleMass}
-                  onChange={(e) => handleInputChange('muscleMass', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
-                />
-              </div>
+        {/* Physical Metrics */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Physical Metrics</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="weight">Weight (kg)</Label>
+              <Input
+                id="weight"
+                type="number"
+                value={formData.weight}
+                onChange={(e) => handleInputChange('weight', e.target.value)}
+                placeholder="70"
+              />
             </div>
-          </Card>
+            <div>
+              <Label htmlFor="height">Height (cm)</Label>
+              <Input
+                id="height"
+                type="number"
+                value={formData.height}
+                onChange={(e) => handleInputChange('height', e.target.value)}
+                placeholder="175"
+              />
+            </div>
+            <div>
+              <Label htmlFor="bodyFat">Body Fat (%)</Label>
+              <Input
+                id="bodyFat"
+                type="number"
+                value={formData.bodyFat}
+                onChange={(e) => handleInputChange('bodyFat', e.target.value)}
+                placeholder="15"
+              />
+            </div>
+            <div>
+              <Label htmlFor="muscleMass">Muscle Mass</Label>
+              <Select value={formData.muscleMass} onValueChange={(value) => handleInputChange('muscleMass', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select muscle mass level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="average">Average</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="very-high">Very High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </Card>
 
-          {/* Nutrition */}
-          <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
-            <h3 className="text-xl font-semibold mb-4">Nutrition</h3>
+        {/* Strength Metrics */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Strength Metrics (kg)</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="benchPress">Bench Press</Label>
+              <Input
+                id="benchPress"
+                type="number"
+                value={formData.benchPress}
+                onChange={(e) => handleInputChange('benchPress', e.target.value)}
+                placeholder="80"
+              />
+            </div>
+            <div>
+              <Label htmlFor="squat">Squat</Label>
+              <Input
+                id="squat"
+                type="number"
+                value={formData.squat}
+                onChange={(e) => handleInputChange('squat', e.target.value)}
+                placeholder="100"
+              />
+            </div>
+            <div>
+              <Label htmlFor="deadlift">Deadlift</Label>
+              <Input
+                id="deadlift"
+                type="number"
+                value={formData.deadlift}
+                onChange={(e) => handleInputChange('deadlift', e.target.value)}
+                placeholder="120"
+              />
+            </div>
+            <div>
+              <Label htmlFor="overheadPress">Overhead Press</Label>
+              <Input
+                id="overheadPress"
+                type="number"
+                value={formData.overheadPress}
+                onChange={(e) => handleInputChange('overheadPress', e.target.value)}
+                placeholder="50"
+              />
+            </div>
+            <div>
+              <Label htmlFor="pullUps">Pull-ups (reps)</Label>
+              <Input
+                id="pullUps"
+                type="number"
+                value={formData.pullUps}
+                onChange={(e) => handleInputChange('pullUps', e.target.value)}
+                placeholder="10"
+              />
+            </div>
+            <div>
+              <Label htmlFor="rows">Rows (kg)</Label>
+              <Input
+                id="rows"
+                type="number"
+                value={formData.rows}
+                onChange={(e) => handleInputChange('rows', e.target.value)}
+                placeholder="70"
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Goals & Training */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Goals & Training</h3>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="primaryGoal">Primary Goal</Label>
+              <Select value={formData.primaryGoal} onValueChange={(value) => handleInputChange('primaryGoal', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select primary goal" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Build Muscle">Build Muscle</SelectItem>
+                  <SelectItem value="Lose Weight">Lose Weight</SelectItem>
+                  <SelectItem value="Increase Strength">Increase Strength</SelectItem>
+                  <SelectItem value="Improve Endurance">Improve Endurance</SelectItem>
+                  <SelectItem value="General Fitness">General Fitness</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="weeklyAvailability">Weekly Training Days</Label>
+              <Select value={formData.weeklyAvailability} onValueChange={(value) => handleInputChange('weeklyAvailability', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select training frequency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="3">3 days per week</SelectItem>
+                  <SelectItem value="4">4 days per week</SelectItem>
+                  <SelectItem value="5">5 days per week</SelectItem>
+                  <SelectItem value="6">6 days per week</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="dietStyle">Diet Style</Label>
-                <Select value={formData.dietStyle} onValueChange={(value) => handleInputChange('dietStyle', value)}>
-                  <SelectTrigger className="bg-glass/20 border-glass-border">
-                    <SelectValue placeholder="Select diet style" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="balanced">Balanced</SelectItem>
-                    <SelectItem value="high-protein">High Protein</SelectItem>
-                    <SelectItem value="low-carb">Low Carb</SelectItem>
-                    <SelectItem value="keto">Keto</SelectItem>
-                    <SelectItem value="vegetarian">Vegetarian</SelectItem>
-                    <SelectItem value="vegan">Vegan</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
+              <div>
                 <Label htmlFor="dailyCalories">Daily Calories</Label>
                 <Input
                   id="dailyCalories"
                   type="number"
-                  placeholder="2200"
                   value={formData.dailyCalories}
                   onChange={(e) => handleInputChange('dailyCalories', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
+                  placeholder="2500"
                 />
               </div>
-              <div className="space-y-2">
+              <div>
                 <Label htmlFor="proteinIntake">Protein Intake (g)</Label>
                 <Input
                   id="proteinIntake"
                   type="number"
-                  placeholder="150"
                   value={formData.proteinIntake}
                   onChange={(e) => handleInputChange('proteinIntake', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
+                  placeholder="150"
                 />
               </div>
             </div>
-          </Card>
-
-          {/* Strength Metrics */}
-          <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
-            <h3 className="text-xl font-semibold mb-4">Current Lifts (kg)</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="benchPress">Bench Press</Label>
-                <Input
-                  id="benchPress"
-                  type="number"
-                  placeholder="80"
-                  value={formData.benchPress}
-                  onChange={(e) => handleInputChange('benchPress', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="squat">Squat</Label>
-                <Input
-                  id="squat"
-                  type="number"
-                  placeholder="100"
-                  value={formData.squat}
-                  onChange={(e) => handleInputChange('squat', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="deadlift">Deadlift</Label>
-                <Input
-                  id="deadlift"
-                  type="number"
-                  placeholder="120"
-                  value={formData.deadlift}
-                  onChange={(e) => handleInputChange('deadlift', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="overheadPress">Overhead Press</Label>
-                <Input
-                  id="overheadPress"
-                  type="number"
-                  placeholder="50"
-                  value={formData.overheadPress}
-                  onChange={(e) => handleInputChange('overheadPress', e.target.value)}
-                  className="bg-glass/20 border-glass-border"
-                />
-              </div>
-            </div>
-          </Card>
-
-          {/* Goals */}
-          <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
-            <h3 className="text-xl font-semibold mb-4">Goals</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="primaryGoal">Primary Goal</Label>
-                <Select value={formData.primaryGoal} onValueChange={(value) => handleInputChange('primaryGoal', value)}>
-                  <SelectTrigger className="bg-glass/20 border-glass-border">
-                    <SelectValue placeholder="Select primary goal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="muscle-gain">Muscle Gain</SelectItem>
-                    <SelectItem value="weight-loss">Weight Loss</SelectItem>
-                    <SelectItem value="strength">Strength</SelectItem>
-                    <SelectItem value="endurance">Endurance</SelectItem>
-                    <SelectItem value="general-fitness">General Fitness</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="secondaryGoal">Secondary Goal</Label>
-                <Select value={formData.secondaryGoal} onValueChange={(value) => handleInputChange('secondaryGoal', value)}>
-                  <SelectTrigger className="bg-glass/20 border-glass-border">
-                    <SelectValue placeholder="Select secondary goal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="muscle-gain">Muscle Gain</SelectItem>
-                    <SelectItem value="weight-loss">Weight Loss</SelectItem>
-                    <SelectItem value="strength">Strength</SelectItem>
-                    <SelectItem value="endurance">Endurance</SelectItem>
-                    <SelectItem value="general-fitness">General Fitness</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </Card>
-
-          {/* Submit Button */}
-          <div className="flex justify-center">
-            <Button 
-              type="submit" 
-              size="lg" 
-              variant="accent"
-              disabled={isSubmitting}
-              className="flex items-center gap-2 min-w-[200px]"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Updating...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  Update Metrics
-                </>
-              )}
-            </Button>
           </div>
-        </form>
+        </Card>
+
+        {/* Update Button */}
+        <Button 
+          onClick={handleUpdate} 
+          disabled={isUpdating}
+          className="w-full"
+          size="lg"
+        >
+          {isUpdating ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Updating Metrics...
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4 mr-2" />
+              Update Metrics
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

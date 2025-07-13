@@ -2,150 +2,156 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
-  Home, 
-  Play, 
   Calendar, 
-  Settings, 
-  User, 
+  TrendingUp, 
+  Target, 
+  Dumbbell, 
+  Play, 
   BarChart3,
-  Dumbbell,
-  Target,
+  User,
+  Settings,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Edit3
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
-  onNavigate: (page: string) => void;
-  userPhoto?: string;
+  onStartWorkout: () => void;
+  onModifySchedule: () => void;
+  onViewPlan: () => void;
+  onViewProgress: () => void;
+  onViewCalendar: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, userPhoto }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  onStartWorkout,
+  onModifySchedule,
+  onViewPlan,
+  onViewProgress,
+  onViewCalendar
+}) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out.",
-    });
-    // Add logout logic here
-  };
+  const quickActions = [
+    { icon: Play, label: 'Start Workout', action: onStartWorkout, color: 'text-primary' },
+    { icon: Calendar, label: 'View Calendar', action: onViewCalendar, color: 'text-blue-500' },
+    { icon: BarChart3, label: 'View Progress', action: onViewProgress, color: 'text-green-500' },
+    { icon: Target, label: 'View Plan', action: onViewPlan, color: 'text-purple-500' }
+  ];
 
   const handleUpdateMetrics = () => {
-    onNavigate('update-metrics');
+    navigate('/update-metrics');
   };
 
   const handleAccountClick = () => {
-    onNavigate('account');
+    navigate('/account');
   };
 
-  const quickActions = [
-    { icon: Home, label: 'Dashboard', action: () => onNavigate('dashboard') },
-    { icon: Play, label: 'Start Workout', action: () => onNavigate('workout') },
-    { icon: Calendar, label: 'Calendar', action: () => onNavigate('calendar') },
-    { icon: Target, label: 'Modify Plan', action: () => onNavigate('modify-schedule') },
-  ];
-
   return (
-    <div
-      className={`fixed left-0 top-0 h-full bg-glass/95 backdrop-blur-glass border-r border-glass-border shadow-elevated transition-all duration-300 ease-in-out z-50 ${
+    <div 
+      className={`fixed right-0 top-0 h-full bg-gradient-to-b from-background/95 via-surface/90 to-surface-secondary/95 backdrop-blur-lg border-l border-border/50 shadow-2xl transition-all duration-300 ease-in-out z-50 ${
         isHovered ? 'w-64' : 'w-16'
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex flex-col h-full">
-        {/* Logo Section */}
-        <div className="p-4 border-b border-glass-border/50">
-          <div className="flex items-center justify-center">
-            <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-              <Dumbbell className="w-5 h-5 text-white" />
-            </div>
+      <div className="flex flex-col h-full p-3">
+        {/* Quick Actions */}
+        <div className="flex-1 space-y-3 mt-8">
+          <div className={`transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
             {isHovered && (
-              <div className="ml-3 opacity-100 transition-opacity duration-300">
-                <h2 className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  GymPro
-                </h2>
-              </div>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-4 px-2">
+                Quick Actions
+              </h3>
             )}
           </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="flex-1 py-4">
-          <div className="space-y-2 px-2">
-            {quickActions.map((action, index) => (
+          
+          {quickActions.map((action, index) => (
+            <div key={index} className="relative group">
               <Button
-                key={index}
                 variant="ghost"
-                size="sm"
                 onClick={action.action}
-                className={`w-full justify-start h-12 transition-all duration-200 hover:bg-primary/10 hover:text-primary ${
-                  isHovered ? 'px-4' : 'px-0 justify-center'
+                className={`w-full justify-start transition-all duration-200 hover:bg-primary/10 ${
+                  isHovered ? 'px-3' : 'px-2'
                 }`}
-                title={!isHovered ? action.label : undefined}
               >
-                <action.icon className="w-5 h-5" />
+                <action.icon className={`w-5 h-5 ${action.color}`} />
+                <span className={`ml-3 transition-all duration-200 ${
+                  isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
+                }`}>
+                  {action.label}
+                </span>
                 {isHovered && (
-                  <span className="ml-3 opacity-100 transition-opacity duration-300">
-                    {action.label}
-                  </span>
+                  <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                 )}
               </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Bottom Actions */}
-        <div className="p-2 border-t border-glass-border/50 space-y-2">
-          {/* Update Metrics Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleUpdateMetrics}
-            className={`w-full justify-start h-12 transition-all duration-200 hover:bg-accent/10 hover:text-accent ${
-              isHovered ? 'px-4' : 'px-0 justify-center'
-            }`}
-            title={!isHovered ? 'Update Metrics' : undefined}
-          >
-            <BarChart3 className="w-5 h-5" />
-            {isHovered && (
-              <span className="ml-3 opacity-100 transition-opacity duration-300">
-                Update Metrics
-              </span>
-            )}
-          </Button>
-
-          {/* Account Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleAccountClick}
-            className={`w-full justify-start h-12 transition-all duration-200 hover:bg-secondary/10 hover:text-secondary ${
-              isHovered ? 'px-4' : 'px-0 justify-center'
-            }`}
-            title={!isHovered ? 'Account' : undefined}
-          >
-            <div className="flex items-center">
-              {userPhoto ? (
-                <img
-                  src={userPhoto}
-                  alt="User"
-                  className="w-8 h-8 rounded-full object-cover border-2 border-glass-border"
-                />
-              ) : (
-                <div className="w-8 h-8 bg-gradient-to-r from-secondary to-accent rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
+              
+              {/* Tooltip for collapsed state */}
+              {!isHovered && (
+                <div className="absolute right-20 top-1/2 transform -translate-y-1/2 bg-foreground text-background px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                  {action.label}
                 </div>
               )}
-              {isHovered && (
-                <span className="ml-3 opacity-100 transition-opacity duration-300">
-                  Account
-                </span>
-              )}
             </div>
+          ))}
+        </div>
+
+        {/* Update Metrics Button */}
+        <div className="relative group mb-3">
+          <Button
+            variant="ghost"
+            onClick={handleUpdateMetrics}
+            className={`w-full justify-start transition-all duration-200 hover:bg-secondary/10 ${
+              isHovered ? 'px-3' : 'px-2'
+            }`}
+          >
+            <Settings className="w-5 h-5 text-secondary" />
+            <span className={`ml-3 transition-all duration-200 ${
+              isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
+            }`}>
+              Update Metrics
+            </span>
+            {isHovered && (
+              <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+            )}
           </Button>
+          
+          {!isHovered && (
+            <div className="absolute right-20 top-1/2 transform -translate-y-1/2 bg-foreground text-background px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+              Update Metrics
+            </div>
+          )}
+        </div>
+
+        {/* Account Button */}
+        <div className="relative group">
+          <Button
+            variant="ghost"
+            onClick={handleAccountClick}
+            className={`w-full justify-start transition-all duration-200 hover:bg-accent/10 ${
+              isHovered ? 'px-3' : 'px-2'
+            }`}
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
+            </div>
+            <span className={`ml-3 transition-all duration-200 ${
+              isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
+            }`}>
+              Account
+            </span>
+            {isHovered && (
+              <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+            )}
+          </Button>
+          
+          {!isHovered && (
+            <div className="absolute right-20 top-1/2 transform -translate-y-1/2 bg-foreground text-background px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+              Account
+            </div>
+          )}
         </div>
       </div>
     </div>
