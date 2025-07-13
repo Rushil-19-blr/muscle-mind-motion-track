@@ -13,6 +13,7 @@ import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
 import { ModifySchedule } from '@/components/ModifySchedule';
 import { ViewPlan } from '@/components/ViewPlan';
 import { SignInDialog } from '@/components/SignInDialog';
+import { LoginDialog } from '@/components/LoginDialog';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Sidebar } from '@/components/Sidebar';
 import { AccountPage } from '@/components/AccountPage';
@@ -55,6 +56,7 @@ const Index = () => {
   const [pendingPlan, setPendingPlan] = useState<WorkoutPlan | null>(null);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
   const [showSignInDialog, setShowSignInDialog] = useState(false);
+  const [showLandingSignIn, setShowLandingSignIn] = useState(false);
   const { setWorkoutPlan, workoutPlan } = useWorkoutPlan();
   const { toast } = useToast();
 
@@ -65,26 +67,34 @@ const Index = () => {
 
   const handleSignInComplete = async () => {
     setShowSignInDialog(false);
-    setIsGeneratingPlan(true);
+    setShowLandingSignIn(false);
     
-    try {
-      toast({
-        title: "Generating Your Plan",
-        description: "Our AI is creating a personalized workout plan for you...",
-      });
+    // If there's user data, generate plan
+    if (userData) {
+      setIsGeneratingPlan(true);
       
-      const workoutPlan = await googleAIService.generateWorkoutPlan(userData!);
-      setPendingPlan(workoutPlan);
-      setAppState('schedule-approval');
-    } catch (error) {
-      console.error('Error generating workout plan:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate workout plan. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGeneratingPlan(false);
+      try {
+        toast({
+          title: "Generating Your Plan",
+          description: "Our AI is creating a personalized workout plan for you...",
+        });
+        
+        const workoutPlan = await googleAIService.generateWorkoutPlan(userData!);
+        setPendingPlan(workoutPlan);
+        setAppState('schedule-approval');
+      } catch (error) {
+        console.error('Error generating workout plan:', error);
+        toast({
+          title: "Error",
+          description: "Failed to generate workout plan. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsGeneratingPlan(false);
+      }
+    } else {
+      // If no user data, go to dashboard (for direct sign in from landing page)
+      setAppState('dashboard');
     }
   };
 
@@ -389,6 +399,15 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary">
       <DarkModeToggle />
       
+      {/* Sign In Button */}
+      <Button
+        variant="outline"
+        onClick={() => setShowLandingSignIn(true)}
+        className="fixed top-4 right-20 z-50 bg-glass/20 backdrop-blur-glass border border-glass-border hover:bg-glass/30 transition-all duration-300"
+      >
+        Sign In
+      </Button>
+      
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10" />
@@ -527,6 +546,13 @@ const Index = () => {
           </Card>
         </div>
       </section>
+
+      {/* Sign In Dialog */}
+      <LoginDialog
+        isOpen={showLandingSignIn}
+        onClose={() => setShowLandingSignIn(false)}
+        onLoginComplete={handleSignInComplete}
+      />
     </div>
   );
 };
