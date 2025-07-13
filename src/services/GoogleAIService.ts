@@ -1,4 +1,7 @@
-const API_KEY = 'xai-tCa34QtilJe194jK4KLGW6JxrOVSqN3E90WyUtFmOEc1eccdCeqoYMTR8MMJ8OgiujTC8Jj5f0YyYEWd';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const API_KEY = 'AIzaSyC5WIxFG41tG29wzzfGA6Ga7hJLvNj1KJk';
+const genAI = new GoogleGenerativeAI(API_KEY);
 
 export interface WorkoutPlan {
   id: string;
@@ -53,7 +56,7 @@ export interface UserData {
 }
 
 export class GoogleAIService {
-  private apiKey = API_KEY;
+  public model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   async generateWorkoutPlan(userData: UserData): Promise<WorkoutPlan> {
     const prompt = `
@@ -133,35 +136,9 @@ export class GoogleAIService {
     `;
 
     try {
-      const response = await fetch('https://api.x.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'grok-beta',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a professional fitness trainer and exercise physiologist. You must respond with ONLY valid JSON, no additional text.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 2000
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data.choices[0].message.content;
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
       
       console.log('AI Response:', text);
       
@@ -207,35 +184,9 @@ export class GoogleAIService {
     `;
 
     try {
-      const response = await fetch('https://api.x.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'grok-beta',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a professional fitness trainer. You must respond with ONLY valid JSON in the same format as provided.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 2000
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data.choices[0].message.content;
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
       
       console.log('AI Modification Response:', text);
       
