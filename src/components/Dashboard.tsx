@@ -17,7 +17,7 @@ import {
 import { CalendarView } from '@/components/CalendarView';
 import { ProgressCharts } from '@/components/ProgressCharts';
 import { ProgramDetails } from '@/components/ProgramDetails';
-import { Edit3 } from 'lucide-react';
+import { Edit3, TrendingUp } from 'lucide-react';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 
 interface DashboardProps {
@@ -54,23 +54,15 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
 
   const stats = getWorkoutStats();
 
+  // Calculate consistency percentage (mock for now)
+  const consistencyPercentage = 85; // This would come from actual workout completion data
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4 ml-16">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Welcome Header */}
-        <div className="text-center space-y-4 py-8">
-          <div className="flex justify-end mb-4">
-            <Button 
-              variant="outline" 
-              onClick={onViewPlan}
-              className="flex items-center gap-2"
-            >
-              <Target className="w-4 h-4" />
-              View Plan
-            </Button>
-          </div>
+        <div className="text-center space-y-4 py-6">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Welcome back, {userName}!
           </h1>
@@ -134,17 +126,36 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          {/* Training Days */}
+          {/* Consistency Chart */}
           <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass hover:shadow-elevated transition-all duration-300">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-secondary" />
-                  <span className="text-sm font-medium">Training</span>
+                  <TrendingUp className="w-5 h-5 text-success" />
+                  <span className="text-sm font-medium">Consistency</span>
                 </div>
-                <span className="text-4xl font-bold text-secondary">
-                  {stats.totalDays}
-                </span>
+                <div className="relative w-16 h-16">
+                  <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="text-muted/20"
+                    />
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeDasharray={`${consistencyPercentage}, 100`}
+                      className="text-success"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-bold text-success">{consistencyPercentage}%</span>
+                  </div>
+                </div>
               </div>
             </div>
           </Card>
@@ -194,70 +205,46 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
           </Card>
         </div>
 
-        {/* Recent Progress and PRs */}
+        {/* Goals Section - Moved to Bottom */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          {/* Program Goals */}
-          <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-success" />
-                <h3 className="text-lg font-semibold">Your Goals</h3>
-              </div>
-              
-              <div className="space-y-3">
-                {workoutPlan?.goals.map((goal, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20">
-                    <div>
-                      <p className="font-medium capitalize">{goal.replace('-', ' ')}</p>
-                      <p className="text-sm text-muted-foreground">Primary focus</p>
-                    </div>
-                    <div className="text-right">
-                      <Target className="w-6 h-6 text-primary" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
-
           {/* Quick Actions */}
           <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Quick Actions</h3>
               
               <div className="grid grid-cols-1 gap-3">
-                <Button variant="secondary" className="justify-start h-12" onClick={onStartWorkout}>
+                <Button variant="secondary" className="justify-center h-12" onClick={onStartWorkout}>
                   <Play className="w-5 h-5 mr-3" />
-                  <div className="text-left">
+                  <div className="text-center">
                     <p className="font-medium">
                       {todaysWorkout ? "Start Today's Workout" : "No Workout Today"}
                     </p>
-                    <p className="text-xs opacity-70">
-                      {todaysWorkout ? todaysWorkout.name : "Rest day"}
-                    </p>
                   </div>
                 </Button>
-                
-                
-                <CalendarView workoutPlan={workoutPlan} />
-                
-                {workoutPlan && <ProgramDetails workoutPlan={workoutPlan} />}
                 
                 <ProgressCharts />
-                
-                <Button 
-                  variant="outline" 
-                  onClick={onModifySchedule}
-                  className="justify-start h-12"
-                >
-                  <Edit3 className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <p className="font-medium">Modify Schedule</p>
-                    <p className="text-xs opacity-70">Adjust your workout plan</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Your Goals - Smaller and at Bottom */}
+          <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-success" />
+                <h3 className="text-base font-semibold">Your Goals</h3>
+              </div>
+              
+              <div className="space-y-2">
+                {workoutPlan?.goals.slice(0, 2).map((goal, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-primary/10 rounded-lg border border-primary/20">
+                    <div>
+                      <p className="text-sm font-medium capitalize">{goal.replace('-', ' ')}</p>
+                    </div>
+                    <Target className="w-4 h-4 text-primary" />
                   </div>
-                </Button>
-                
+                ))}
               </div>
             </div>
           </Card>

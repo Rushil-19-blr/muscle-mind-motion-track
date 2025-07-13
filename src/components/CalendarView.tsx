@@ -31,9 +31,35 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
 
   const getWorkoutForDay = (dayName: string) => {
     if (!workoutPlan) return null;
-    return workoutPlan.days.find(day => 
-      day.day.toLowerCase() === dayName.toLowerCase()
-    );
+    
+    // More flexible day matching
+    const normalizedDayName = dayName.toLowerCase().trim();
+    
+    return workoutPlan.days.find(day => {
+      const planDay = day.day.toLowerCase().trim();
+      
+      // Direct match
+      if (planDay === normalizedDayName) return true;
+      
+      // Check if plan day is contained in the calendar day or vice versa
+      if (planDay.includes(normalizedDayName) || normalizedDayName.includes(planDay)) return true;
+      
+      // Check for common abbreviations
+      const dayMappings = {
+        'sun': 'sunday',
+        'mon': 'monday', 
+        'tue': 'tuesday',
+        'wed': 'wednesday',
+        'thu': 'thursday',
+        'fri': 'friday',
+        'sat': 'saturday'
+      };
+      
+      const expandedCalendarDay = dayMappings[normalizedDayName] || normalizedDayName;
+      const expandedPlanDay = dayMappings[planDay] || planDay;
+      
+      return expandedCalendarDay === expandedPlanDay;
+    });
   };
 
   const getWorkoutType = (workout: any) => {
@@ -87,6 +113,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ workoutPlan }) => {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
       const dayName = daysOfWeek[date.getDay()];
       const workout = getWorkoutForDay(dayName);
+      
+      console.log(`Day ${day} (${dayName}):`, workout); // Debug log
+      
       const workoutType = getWorkoutType(workout);
       const typeColor = getWorkoutTypeColor(workoutType);
       const typeLabel = getWorkoutTypeLabel(workoutType);

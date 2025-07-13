@@ -56,8 +56,24 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ onComplete, onExit }) =
   // Get today's workout from the actual plan
   const getTodaysWorkout = () => {
     if (!workoutPlan) return [];
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    const todaysWorkoutDay = workoutPlan.days.find(day => day.day === today);
+    
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    console.log('Today is:', today); // Debug log
+    console.log('Available workout days:', workoutPlan.days.map(d => d.day)); // Debug log
+    
+    const todaysWorkoutDay = workoutPlan.days.find(day => {
+      const planDay = day.day.toLowerCase().trim();
+      
+      // Direct match
+      if (planDay === today) return true;
+      
+      // Check if plan day contains today or vice versa
+      if (planDay.includes(today) || today.includes(planDay)) return true;
+      
+      return false;
+    });
+    
+    console.log('Found workout day:', todaysWorkoutDay); // Debug log
     
     if (!todaysWorkoutDay) return [];
     
