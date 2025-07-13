@@ -13,12 +13,15 @@ import { googleAIService, WorkoutPlan } from '@/services/GoogleAIService';
 import { ModifySchedule } from '@/components/ModifySchedule';
 import { ViewPlan } from '@/components/ViewPlan';
 import { SignInDialog } from '@/components/SignInDialog';
+import { Sidebar } from '@/components/Sidebar';
+import { Account } from '@/pages/Account';
+import { UpdateMetrics } from '@/pages/UpdateMetrics';
 import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
 import { useToast } from '@/hooks/use-toast';
 
-type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval' | 'modify-schedule' | 'view-plan';
+type AppState = 'landing' | 'onboarding' | 'dashboard' | 'workout' | 'schedule-approval' | 'modify-schedule' | 'view-plan' | 'account' | 'update-metrics';
 
 export interface UserData {
   name: string;
@@ -121,6 +124,32 @@ const Index = () => {
     setAppState('view-plan');
   };
 
+  const handleSidebarNavigate = (page: string) => {
+    switch (page) {
+      case 'dashboard':
+        setAppState('dashboard');
+        break;
+      case 'workout':
+        setAppState('workout');
+        break;
+      case 'calendar':
+        // Handle calendar view - for now just show dashboard
+        setAppState('dashboard');
+        break;
+      case 'modify-schedule':
+        setAppState('modify-schedule');
+        break;
+      case 'account':
+        setAppState('account');
+        break;
+      case 'update-metrics':
+        setAppState('update-metrics');
+        break;
+      default:
+        setAppState('dashboard');
+    }
+  };
+
   if (appState === 'onboarding') {
     return (
       <>
@@ -163,14 +192,17 @@ const Index = () => {
   if (appState === 'dashboard') {
     return (
       <>
+        <Sidebar onNavigate={handleSidebarNavigate} />
         <DarkModeToggle />
         {userData && <RexChatbot userData={userData} workoutPlan={workoutPlan} onPlanModified={setWorkoutPlan} />}
-        <Dashboard 
-          userName={userData?.name || 'User'} 
-          onStartWorkout={handleStartWorkout}
-          onModifySchedule={handleModifySchedule}
-          onViewPlan={handleViewPlan}
-        />
+        <div className="ml-16">
+          <Dashboard 
+            userName={userData?.name || 'User'} 
+            onStartWorkout={handleStartWorkout}
+            onModifySchedule={handleModifySchedule}
+            onViewPlan={handleViewPlan}
+          />
+        </div>
       </>
     );
   }
@@ -178,17 +210,20 @@ const Index = () => {
   if (appState === 'modify-schedule') {
     return (
       <>
+        <Sidebar onNavigate={handleSidebarNavigate} />
         <DarkModeToggle />
         <RexChatbot userData={userData} workoutPlan={workoutPlan} />
-        <ModifySchedule 
-          workoutPlan={workoutPlan}
-          onBack={() => setAppState('dashboard')}
-          onPlanUpdated={(updatedPlan) => {
-            setWorkoutPlan(updatedPlan);
-            setAppState('dashboard');
-          }}
-          userData={userData}
-        />
+        <div className="ml-16">
+          <ModifySchedule 
+            workoutPlan={workoutPlan}
+            onBack={() => setAppState('dashboard')}
+            onPlanUpdated={(updatedPlan) => {
+              setWorkoutPlan(updatedPlan);
+              setAppState('dashboard');
+            }}
+            userData={userData}
+          />
+        </div>
       </>
     );
   }
@@ -196,11 +231,14 @@ const Index = () => {
   if (appState === 'view-plan') {
     return (
       <>
+        <Sidebar onNavigate={handleSidebarNavigate} />
         <DarkModeToggle />
-        <ViewPlan 
-          workoutPlan={workoutPlan}
-          onBack={() => setAppState('dashboard')}
-        />
+        <div className="ml-16">
+          <ViewPlan 
+            workoutPlan={workoutPlan}
+            onBack={() => setAppState('dashboard')}
+          />
+        </div>
       </>
     );
   }
@@ -208,12 +246,45 @@ const Index = () => {
   if (appState === 'workout') {
     return (
       <>
+        <Sidebar onNavigate={handleSidebarNavigate} />
         <DarkModeToggle />
         <RexChatbot userData={userData} workoutPlan={workoutPlan} isWorkoutMode={true} />
-        <WorkoutSession
-          onComplete={handleWorkoutComplete}
-          onExit={handleWorkoutExit}
-        />
+        <div className="ml-16">
+          <WorkoutSession
+            onComplete={handleWorkoutComplete}
+            onExit={handleWorkoutExit}
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (appState === 'account') {
+    return (
+      <>
+        <Sidebar onNavigate={handleSidebarNavigate} />
+        <DarkModeToggle />
+        <div className="ml-16">
+          <Account 
+            onBack={() => setAppState('dashboard')}
+            userData={userData}
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (appState === 'update-metrics') {
+    return (
+      <>
+        <Sidebar onNavigate={handleSidebarNavigate} />
+        <DarkModeToggle />
+        <div className="ml-16">
+          <UpdateMetrics 
+            onBack={() => setAppState('dashboard')}
+            userData={userData}
+          />
+        </div>
       </>
     );
   }
