@@ -398,7 +398,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary">
       {/* Top Navigation */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-4">
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
         <Button 
           variant="outline" 
           onClick={handleSignInClick}
