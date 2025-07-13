@@ -17,7 +17,7 @@ import { useWorkoutPlan } from '@/contexts/WorkoutPlanContext';
 import { Sidebar } from '@/components/Sidebar';
 import { AccountPage } from '@/components/AccountPage';
 import { UpdateMetrics } from '@/components/UpdateMetrics';
-import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap, Trophy, ArrowLeft } from 'lucide-react';
+import { Play, Target, BarChart3, Sparkles, Dumbbell, Zap, Trophy, ArrowLeft, LogIn } from 'lucide-react';
 import heroImage from '@/assets/hero-fitness.jpg';
 import { useToast } from '@/hooks/use-toast';
 
@@ -153,6 +153,19 @@ const Index = () => {
       default:
         setAppState('dashboard');
     }
+  };
+
+  const handleSignInClick = () => {
+    setShowSignInDialog(true);
+  };
+
+  const handleSignInCompleteFromLanding = async () => {
+    setShowSignInDialog(false);
+    setAppState('dashboard');
+    toast({
+      title: "Welcome Back!",
+      description: "You have successfully signed in.",
+    });
   };
 
   const handleLogout = () => {
@@ -384,7 +397,18 @@ const Index = () => {
   // Landing Page
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary">
-      <DarkModeToggle />
+      {/* Top Navigation */}
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-4">
+        <Button 
+          variant="outline" 
+          onClick={handleSignInClick}
+          className="flex items-center gap-2"
+        >
+          <LogIn className="w-4 h-4" />
+          Sign In
+        </Button>
+        <DarkModeToggle />
+      </div>
       
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
@@ -524,6 +548,13 @@ const Index = () => {
           </Card>
         </div>
       </section>
+
+      {/* Sign In Dialog */}
+      <SignInDialog 
+        isOpen={showSignInDialog}
+        onClose={() => setShowSignInDialog(false)}
+        onSignInComplete={handleSignInCompleteFromLanding}
+      />
     </div>
   );
 };
