@@ -132,11 +132,17 @@ const Index = () => {
       case 'workout':
         handleStartWorkout();
         break;
+      case 'view-schedule':
+        setAppState('view-plan');
+        break;
       case 'modify-schedule':
         handleModifySchedule();
         break;
-      case 'view-plan':
-        handleViewPlan();
+      case 'progress-charts':
+        setAppState('progress-charts');
+        break;
+      case 'view-prs':
+        setAppState('view-prs');
         break;
       case 'account':
         setAppState('account');
@@ -276,6 +282,69 @@ const Index = () => {
           onComplete={handleWorkoutComplete}
           onExit={handleWorkoutExit}
         />
+      </>
+    );
+  }
+
+  if (appState === 'progress-charts') {
+    return (
+      <>
+        <Sidebar 
+          onNavigate={handleNavigate} 
+          userName={userData?.name || 'User'} 
+          currentPage="progress-charts"
+        />
+        <DarkModeToggle />
+        <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4 ml-16 flex items-center justify-center">
+          <ProgressCharts />
+        </div>
+      </>
+    );
+  }
+
+  if (appState === 'view-prs') {
+    return (
+      <>
+        <Sidebar 
+          onNavigate={handleNavigate} 
+          userName={userData?.name || 'User'} 
+          currentPage="view-prs"
+        />
+        <DarkModeToggle />
+        <div className="min-h-screen bg-gradient-to-br from-background via-surface to-surface-secondary p-4 ml-16">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => setAppState('dashboard')} className="flex items-center gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+              <h1 className="text-3xl font-bold">Personal Records</h1>
+            </div>
+            
+            <Card className="p-8 bg-glass/30 backdrop-blur-glass border-glass-border shadow-elevated">
+              <div className="text-center space-y-4">
+                <Trophy className="w-16 h-16 mx-auto text-accent" />
+                <h2 className="text-2xl font-bold">Your Personal Records</h2>
+                <p className="text-muted-foreground">Track your strength progress and celebrate your achievements!</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                  {[
+                    { name: 'Bench Press', current: userData?.benchPress || '0', unit: 'kg' },
+                    { name: 'Squat', current: userData?.squat || '0', unit: 'kg' },
+                    { name: 'Deadlift', current: userData?.deadlift || '0', unit: 'kg' },
+                    { name: 'Overhead Press', current: userData?.overheadPress || '0', unit: 'kg' }
+                  ].map((lift, index) => (
+                    <Card key={index} className="p-4 bg-glass/20 backdrop-blur-glass border-glass-border">
+                      <h3 className="font-semibold text-lg mb-2">{lift.name}</h3>
+                      <div className="text-3xl font-bold text-primary">{lift.current} {lift.unit}</div>
+                      <p className="text-sm text-muted-foreground mt-1">Current PR</p>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
       </>
     );
   }

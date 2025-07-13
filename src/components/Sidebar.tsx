@@ -25,9 +25,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, userName, currentP
   const menuItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard', action: () => onNavigate('dashboard') },
     { id: 'workout', icon: Play, label: 'Start Workout', action: () => onNavigate('workout') },
-    { id: 'calendar', icon: Calendar, label: 'View Schedule', action: () => onNavigate('calendar') },
+    { id: 'calendar', icon: Calendar, label: 'View Schedule', action: () => onNavigate('view-schedule') },
     { id: 'modify', icon: Edit3, label: 'Modify Plan', action: () => onNavigate('modify-schedule') },
-    { id: 'progress', icon: BarChart3, label: 'Progress Charts', action: () => onNavigate('progress') },
+    { id: 'progress', icon: BarChart3, label: 'Progress Charts', action: () => onNavigate('progress-charts') },
+    { id: 'prs', icon: Trophy, label: 'View PRs', action: () => onNavigate('view-prs') },
   ];
 
   return (

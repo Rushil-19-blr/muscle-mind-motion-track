@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { BarChart3, TrendingUp, Target, Calendar } from 'lucide-react';
 
 export const ProgressCharts: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true); // Always open when accessed directly
   
   // Mock data - in real app this would come from user's workout history
   const strengthData = [

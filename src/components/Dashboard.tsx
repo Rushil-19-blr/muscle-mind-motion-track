@@ -205,31 +205,30 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onStartWorkout, onModif
           </Card>
         </div>
 
-        {/* Goals Section - Moved to Bottom */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          {/* Quick Actions */}
-          <Card className="p-6 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Quick Actions</h3>
-              
-              <div className="grid grid-cols-1 gap-3">
-                <Button variant="secondary" className="justify-center h-12" onClick={onStartWorkout}>
-                  <Play className="w-5 h-5 mr-3" />
-                  <div className="text-center">
-                    <p className="font-medium">
-                      {todaysWorkout ? "Start Today's Workout" : "No Workout Today"}
-                    </p>
-                  </div>
-                </Button>
-                
-                <ProgressCharts />
-              </div>
+        {/* Your Goals - Smaller and at Bottom */}
+        <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass max-w-md mx-auto">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-success" />
+              <h3 className="text-base font-semibold">Your Goals</h3>
             </div>
-          </Card>
-
-          {/* Your Goals - Smaller and at Bottom */}
-          <Card className="p-4 bg-glass/30 backdrop-blur-glass border-glass-border shadow-glass">
+            
+            <div className="space-y-2">
+              {workoutPlan?.goals.slice(0, 2).map((goal, index) => (
+                <div key={index} className="flex items-center justify-between p-2 bg-primary/10 rounded-lg border border-primary/20">
+                  <div>
+                    <p className="text-sm font-medium capitalize">{goal.replace('-', ' ')}</p>
+                  </div>
+                  <Target className="w-4 h-4 text-primary" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+};
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Target className="w-5 h-5 text-success" />
